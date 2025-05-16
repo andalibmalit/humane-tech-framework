@@ -8,11 +8,9 @@ This guide will help you run the Humane Tech Linter on any public or private Git
 
 ### On Mac
 - Click the **Spotlight** icon (🔍) in the top right, type `Terminal`, and press Enter.
-- ![Open Terminal on Mac](docs/screenshots/open-terminal-mac.png)
 
 ### On Windows
 - Press the **Windows key**, type `cmd` or `Command Prompt`, and press Enter.
-- ![Open Command Prompt on Windows](docs/screenshots/open-terminal-windows.png)
 
 ---
 
