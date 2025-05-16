@@ -1,5 +1,7 @@
 # Humane Design Patterns
 
+> **Note:** All design patterns in this framework should support the Promises of Humane Technology (Cared for, Present, Fulfilled, Connected) and avoid the anti-patterns (Erodes Well-Being, Divides Society, Exploits Privacy), as described at [buildinghumanetech.com](https://www.buildinghumanetech.com/).
+
 This document provides reusable design patterns that implement humane technology principles. Each pattern addresses common design challenges while prioritizing user wellbeing and agency.
 
 ## Attention Management Patterns

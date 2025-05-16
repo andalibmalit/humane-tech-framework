@@ -2,6 +2,27 @@
 
 These core principles guide the development of technology that respects and enhances human well-being, autonomy, and dignity.
 
+---
+
+## Supplement: Promises and Anti-Patterns of Humane Technology
+
+*Inspired by [buildinghumanetech.com](https://www.buildinghumanetech.com/)*
+
+### Promises of Humane Technology
+When you interact with humane tech, it should make you feel:
+- **Cared for:** Your needs are at the center of the experience.
+- **Present:** You feel more present in body and mind.
+- **Fulfilled:** You are satisfied with your experience and outcomes.
+- **Connected:** You connect to yourself, others, or nature.
+
+### What _isn't_ Humane Technology?
+Humane technology avoids these anti-patterns:
+- **Erodes Well-Being:** Exploits attention span, or need for acceptance & belonging.
+- **Divides Society:** Prioritizes virality over truth, spreads misinformation, polarizes.
+- **Exploits Privacy:** Threatens the sanctity of data, enables surveillance.
+
+---
+
 ## 1. Respect User Attention
 
 **Technology should respect user attention as a finite, precious resource.**

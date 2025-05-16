@@ -2,6 +2,29 @@
 
 A collection of tools, guidelines, and resources for building technology that respects human well-being, autonomy, and dignity.
 
+---
+
+## What is Humane Technology?
+
+Humane technology is technology that supports human flourishing, minimizes harm, and creates positive outcomes. It is built with an awareness of our capacity for distraction and anxiety, and aims to:
+- Respect user attention
+- Promote digital well-being
+- Foster meaningful connection
+- Protect privacy and dignity
+
+This framework is inspired by the principles and thinking of [buildinghumanetech.com](https://www.buildinghumanetech.com/).
+
+### Promises of Humane Technology
+When you interact with humane tech, it should make you feel:
+- **Cared for:** Your needs are at the center of the experience.
+- **Present:** You feel more present in body and mind.
+- **Fulfilled:** You are satisfied with your experience and outcomes.
+- **Connected:** You connect to yourself, others, or nature.
+
+For more, see [buildinghumanetech.com](https://www.buildinghumanetech.com/).
+
+---
+
 ## Vision
 
 The Humane Technology Framework aims to provide developers, designers, and organizations with practical tools to create technology that:

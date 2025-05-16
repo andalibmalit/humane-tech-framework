@@ -2,6 +2,26 @@
 
 These assessment tools help evaluate whether technologies align with humane design principles. They can be applied to existing products or guide development of new ones.
 
+---
+
+## Supplement: Assessing Humane Tech Promises and Anti-Patterns
+*Inspired by [buildinghumanetech.com](https://www.buildinghumanetech.com/)*
+
+### Promises Assessment
+For each, rate your product (1-5):
+- **Cared for:** Does the product put user needs at the center?
+- **Present:** Does it help users feel present in body and mind?
+- **Fulfilled:** Do users feel satisfied with their experience and outcomes?
+- **Connected:** Does it foster connection to self, others, or nature?
+
+### Anti-Patterns Assessment
+For each, rate your product (1-5, where 1 = major problem, 5 = not present):
+- **Erodes Well-Being:** Does the product exploit attention or need for acceptance?
+- **Divides Society:** Does it spread misinformation, polarize, or prioritize virality over truth?
+- **Exploits Privacy:** Does it threaten data sanctity or enable surveillance?
+
+---
+
 ## Attention Respect Assessment
 
 Evaluate how a technology respects user attention:
