@@ -30,7 +30,7 @@ This guide will help you run the Humane Tech Linter on any public or private Git
 3. Give it a name (e.g., "Humane Linter")
 4. Select the **repo** scope
 5. Click **Generate token** and copy it (you won't see it again!)
-- ![GitHub Token Steps](docs/screenshots/github-token-steps.png)
+
 
 ---
 
@@ -47,9 +47,6 @@ export GITHUB_TOKEN=your_token_here
 set GITHUB_TOKEN=your_token_here
 ```
 
-- ![Set Token Mac](docs/screenshots/set-token-mac.png)
-- ![Set Token Windows](docs/screenshots/set-token-windows.png)
-
 ---
 
 ## 5. Run the Linter on a GitHub Repo
@@ -58,7 +55,6 @@ In your terminal, run:
 ```sh
 node index.js --github https://github.com/yourusername/your-private-repo
 ```
-- ![Run Linter](docs/screenshots/run-linter.png)
 
 The linter will:
 - Download the code
@@ -74,7 +70,6 @@ The linter will:
 - Open `web-viewer/index.html` in your browser
 - Click the file input and select your `humane-linter-report.json`
 - See your results in a friendly format!
-- ![Web Viewer](docs/screenshots/web-viewer.png)
 
 ---
 
