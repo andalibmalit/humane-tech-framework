@@ -18,8 +18,6 @@ This guide will help you run the Humane Tech Linter on any public or private Git
 
 - Go to [nodejs.org](https://nodejs.org/) and download the LTS version. Install it.
 - Go to [git-scm.com](https://git-scm.com/) and download Git. Install it.
-- ![Node.js Download](docs/screenshots/nodejs-download.png)
-- ![Git Download](docs/screenshots/git-download.png)
 
 ---
 
