@@ -7,13 +7,15 @@ A CLI tool to scan codebases for dark patterns and other anti-patterns that unde
 - Reports file, line, and pattern detected
 - Easy to extend with new rules
 - Includes a web viewer for non-technical users
+- **NEW:** Scan any public GitHub repository by just pasting its URL!
 
 ## How to Use
 
 ### 1. Prerequisites
-- You need [Node.js](https://nodejs.org/) installed to run the CLI tool.
+- You need [Node.js](https://nodejs.org/) and [Git](https://git-scm.com/) installed on your computer.
+- You do **not** need to be a developer to use the web viewer, but you do need Node.js and Git to run the linter.
 
-### 2. Run the Linter
+### 2. Scan a Local Folder
 - Open a terminal and navigate to the `humane-linter` directory.
 - Run the linter on your codebase:
   ```sh
@@ -22,7 +24,21 @@ A CLI tool to scan codebases for dark patterns and other anti-patterns that unde
   - Example: `node index.js ../my-project`
 - The linter will print results to the console and write a report to `humane-linter-report.json` in the current directory.
 
-### 3. View Results in the Web Viewer
+### 3. Scan a GitHub Repository (Easiest Way!)
+- Copy the URL of any **public** GitHub repository (for example: `https://github.com/ErikaOnFire/humane-tech-framework`).
+- In your terminal, run:
+  ```sh
+  node index.js --github <github-repo-url>
+  ```
+  - Example: `node index.js --github https://github.com/ErikaOnFire/humane-tech-framework`
+- The linter will:
+  1. Download the code from GitHub (no need to install or clone anything yourself!)
+  2. Scan it for dark patterns
+  3. Print results to the console
+  4. Save a report as `humane-linter-report.json` in your current folder
+  5. Clean up after itself automatically
+
+### 4. View Results in the Web Viewer
 - Open `web-viewer/index.html` in your web browser (no server or build step needed).
 - Click the file input and select your `humane-linter-report.json` file.
 - The results will be displayed in a user-friendly format.
