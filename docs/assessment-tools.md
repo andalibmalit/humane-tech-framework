@@ -8,14 +8,14 @@ These assessment tools help evaluate whether technologies align with humane desi
 *Inspired by [buildinghumanetech.com](https://www.buildinghumanetech.com/)*
 
 ### Promises Assessment
-For each, rate your product (1-5):
+For each, rate your product (1-4):
 - **Cared for:** Does the product put user needs at the center?
 - **Present:** Does it help users feel present in body and mind?
 - **Fulfilled:** Do users feel satisfied with their experience and outcomes?
 - **Connected:** Does it foster connection to self, others, or nature?
 
 ### Anti-Patterns Assessment
-For each, rate your product (1-5, where 1 = major problem, 5 = not present):
+For each, rate your product (1-4, where 1 = major problem, 4 = not present):
 - **Erodes Well-Being:** Does the product exploit attention or need for acceptance?
 - **Divides Society:** Does it spread misinformation, polarize, or prioritize virality over truth?
 - **Exploits Privacy:** Does it threaten data sanctity or enable surveillance?
