@@ -7,6 +7,12 @@ These assessment tools help evaluate whether technologies align with humane desi
 ## Supplement: Assessing Humane Tech Promises and Anti-Patterns
 *Inspired by [buildinghumanetech.com](https://www.buildinghumanetech.com/)*
 
+### Rating Scale
+- **1 = Hell No**
+- **2 = Soft No**
+- **3 = Soft Yes**
+- **4 = Hell Yes**
+
 ### Promises Assessment
 For each, rate your product (1-4):
 - **Cared for:** Does the product put user needs at the center?
@@ -15,7 +21,7 @@ For each, rate your product (1-4):
 - **Connected:** Does it foster connection to self, others, or nature?
 
 ### Anti-Patterns Assessment
-For each, rate your product (1-4, where 1 = major problem, 4 = not present):
+For each, rate your product (1-4, where 1 = hell no, 4 = hell yes):
 - **Erodes Well-Being:** Does the product exploit attention or need for acceptance?
 - **Divides Society:** Does it spread misinformation, polarize, or prioritize virality over truth?
 - **Exploits Privacy:** Does it threaten data sanctity or enable surveillance?
