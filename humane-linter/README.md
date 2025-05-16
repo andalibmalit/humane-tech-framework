@@ -1,5 +1,7 @@
 # Humane Tech Linter
 
+> 📖 **New to this tool?** See our [Getting Started Guide](GETTING_STARTED.md) for step-by-step instructions with screenshots!
+
 A CLI tool to scan codebases for dark patterns and other anti-patterns that undermine humane technology. This tool helps developers identify and remove manipulative or harmful UX practices from their products.
 
 ## Features
