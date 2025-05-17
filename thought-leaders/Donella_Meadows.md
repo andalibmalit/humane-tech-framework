@@ -47,6 +47,14 @@ Meadows' framework is particularly relevant to creating humane technology:
 
 By understanding these leverage points, designers and developers can make more intentional choices about where and how to intervene in technological systems to create more humane outcomes.
 
+## Visual Representation
+
+The Building Humane Tech initiative has created a visual representation of Meadows' leverage points, available at:
+[Visual Leverage Points Diagram](https://www.buildinghumanetech.com/#graphic&visual-leverage-points-diagram)
+
+![Leverage Points Diagram](https://www.buildinghumanetech.com/_next/image?url=%2Fimages%2Fvisual-leverage-points-diagram.png&w=1080&q=75)
+
+This diagram helps visualize how the different leverage points interact and their relative power for creating change.
 ---
 
 _For the full essay, see: [Leverage Points: Places to Intervene in a System](https://donellameadows.org/archives/leverage-points-places-to-intervene-in-a-system/)_
