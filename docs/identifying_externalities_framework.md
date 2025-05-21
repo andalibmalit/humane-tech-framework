@@ -34,4 +34,4 @@ This framework helps teams systematically identify, analyze, and address the ext
 
 ---
 
-For the full worksheet and detailed guidance, see the [Identifying Externalities Worksheet PDF](https://s3.amazonaws.com/com.appolearning.files/production/uploads/uploaded_file/3445572b-9e9f-4d9b-87ac-d7a03465e473/Identifying_Externalities_Worksheet.pdf).
+For the full worksheet and detailed guidance, see the [Identifying Externalities Worksheet PDF](https://www.buildinghumanetech.com/#graphic&externality-framework).
