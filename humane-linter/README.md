@@ -2,10 +2,10 @@
 
 > 📖 **New to this tool?** See our [Getting Started Guide](GETTING_STARTED.md) for step-by-step instructions with screenshots!
 
-A CLI tool to scan codebases for dark patterns and other anti-patterns that undermine humane technology. This tool helps developers identify and remove manipulative or harmful UX practices from their products.
+A CLI tool to scan codebases for deceptive patterns and other anti-patterns that undermine humane technology. This tool helps developers identify and remove manipulative or harmful UX practices from their products.
 
 ## Features
-- Scans JavaScript, HTML, and other text files for 50+ dark patterns
+- Scans JavaScript, HTML, and other text files for 50+ deceptive patterns
 - Reports file, line, and pattern detected
 - Easy to extend with new rules
 - Includes a web viewer for non-technical users
@@ -35,7 +35,7 @@ A CLI tool to scan codebases for dark patterns and other anti-patterns that unde
   - Example: `node index.js --github https://github.com/ErikaOnFire/humane-tech-framework`
 - The linter will:
   1. Download the code from GitHub (no need to install or clone anything yourself!)
-  2. Scan it for dark patterns
+  2. Scan it for deceptive patterns
   3. Print results to the console
   4. Save a report as `humane-linter-report.json` in your current folder
   5. Clean up after itself automatically
@@ -45,7 +45,7 @@ A CLI tool to scan codebases for dark patterns and other anti-patterns that unde
 - Click the file input and select your `humane-linter-report.json` file.
 - The results will be displayed in a user-friendly format.
 
-## Dark Patterns Detected
+## Deceptive Patterns Detected
 - Hidden costs
 - Forced continuity
 - Roach motel
@@ -63,4 +63,4 @@ A CLI tool to scan codebases for dark patterns and other anti-patterns that unde
 - ...and many more
 
 ## Contributing
-Add new rules in `rules/dark-patterns.js` and submit a pull request!
+Add new rules in `rules/deceptive-patterns.js` and submit a pull request!

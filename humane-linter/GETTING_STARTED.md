@@ -7,12 +7,6 @@ This guide will help you run the Humane Tech Linter on any public or private Git
 ## 1. Open a Terminal
 
 ### On Mac
-<<<<<<< HEAD
-- Click the **Spotlight** icon (🔍) in the top right, type `Terminal`, and press Enter.
-
-### On Windows
-- Press the **Windows key**, type `cmd` or `Command Prompt`, and press Enter.
-=======
 - Click the **Spotlight** icon (🔍) in the top right of your screen.
 - Type `Terminal` and press Enter.
 - A window with a command prompt will open.
@@ -21,20 +15,14 @@ This guide will help you run the Humane Tech Linter on any public or private Git
 - Press the **Windows key** on your keyboard.
 - Type `cmd` or `Command Prompt` and press Enter.
 - A window with a command prompt will open.
->>>>>>> Add new files and update GETTING_STARTED.md for humane-linter
 
 ---
 
 ## 2. Install Node.js and Git
 
-<<<<<<< HEAD
-- Go to [nodejs.org](https://nodejs.org/) and download the LTS version. Install it.
-- Go to [git-scm.com](https://git-scm.com/) and download Git. Install it.
-=======
 - Go to [nodejs.org](https://nodejs.org/) and download the LTS version. Install it by following the prompts.
 - Go to [git-scm.com](https://git-scm.com/) and download Git. Install it by following the prompts.
 - To check if they're installed, type `node -v` and `git --version` in your terminal. You should see version numbers.
->>>>>>> Add new files and update GETTING_STARTED.md for humane-linter
 
 ---
 
@@ -45,10 +33,6 @@ This guide will help you run the Humane Tech Linter on any public or private Git
 3. Give it a name (e.g., "Humane Linter")
 4. Select the **repo** scope
 5. Click **Generate token** and copy it (you won't see it again!)
-<<<<<<< HEAD
-
-=======
->>>>>>> Add new files and update GETTING_STARTED.md for humane-linter
 
 ---
 
@@ -65,11 +49,8 @@ export GITHUB_TOKEN=your_token_here
 set GITHUB_TOKEN=your_token_here
 ```
 
-<<<<<<< HEAD
-=======
 Replace `your_token_here` with the token you copied from GitHub.
 
->>>>>>> Add new files and update GETTING_STARTED.md for humane-linter
 ---
 
 ## 5. Run the Linter on a GitHub Repo
@@ -78,15 +59,12 @@ In your terminal, run:
 ```sh
 node index.js --github https://github.com/yourusername/your-repo
 ```
-<<<<<<< HEAD
-=======
 - Replace the URL with the link to the repo you want to scan.
 - For private repos, make sure you set your token as described above.
->>>>>>> Add new files and update GETTING_STARTED.md for humane-linter
 
 The linter will:
 - Download the code
-- Scan for dark patterns
+- Scan for deceptive patterns
 - Print results to the terminal
 - Save a report as `humane-linter-report.json`
 - Clean up after itself
