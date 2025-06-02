@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const { execSync } = require('child_process');
-const rules = require('./rules/dark-patterns');
+const rules = require('./rules/deceptive-patterns');
 
 const SUPPORTED_EXTENSIONS = ['.js', '.jsx', '.ts', '.tsx', '.html', '.css'];
 
