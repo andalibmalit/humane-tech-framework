@@ -130,8 +130,34 @@ function main() {
     });
   }
 
-  // Write JSON report
-  const reportPath = path.join(process.cwd(), 'humane-linter-report.json');
+  // Create reports directory structure
+  const reportsDir = path.join(process.cwd(), 'humane-linter', 'reports');
+  if (!fs.existsSync(reportsDir)) {
+    fs.mkdirSync(reportsDir, { recursive: true });
+  }
+
+  // Determine project name for folder
+  let projectName = 'Unknown';
+  if (isGithub && args[1]) {
+    // Extract repo name from GitHub URL
+    const repoMatch = args[1].match(/github\.com[/:]([^/]+)\/([^/]+?)(?:\.git)?$/);
+    if (repoMatch) {
+      projectName = `${repoMatch[1]}/${repoMatch[2]}`;
+    }
+  } else {
+    // Use the directory name or file name
+    projectName = path.basename(absPath);
+  }
+
+  // Create project-specific directory
+  const projectDir = path.join(reportsDir, projectName);
+  if (!fs.existsSync(projectDir)) {
+    fs.mkdirSync(projectDir, { recursive: true });
+  }
+
+  // Write JSON report with timestamp
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const reportPath = path.join(projectDir, `humane-linter-report-${timestamp}.json`);
   fs.writeFileSync(reportPath, JSON.stringify(results, null, 2), 'utf8');
   console.log(`\nReport written to ${reportPath}`);
 
