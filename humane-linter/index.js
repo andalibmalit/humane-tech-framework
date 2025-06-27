@@ -15,12 +15,14 @@ function scanFile(filePath) {
   lines.forEach((line, idx) => {
     rules.forEach(rule => {
       if (rule.regex.test(line)) {
+        const analysis = rule.analyze ? rule.analyze(filePath, idx + 1) : null;
         results.push({
           file: filePath,
           line: idx + 1,
           pattern: rule.name,
           description: rule.description,
-          match: line.trim()
+          match: line.trim(),
+          analysis: analysis
         });
       }
     });
@@ -112,7 +114,19 @@ function main() {
   } else {
     console.log(`\nFound ${results.length} potential dark pattern(s):\n`);
     results.forEach(r => {
-      console.log(`- [${r.pattern}] ${r.description}\n  File: ${r.file}\n  Line: ${r.line}\n  Match: ${r.match}\n`);
+      console.log(`- [${r.pattern}] ${r.description}\n  File: ${r.file}\n  Line: ${r.line}\n  Match: ${r.match}`);
+      if (r.analysis) {
+        console.log(`  Analysis: ${r.analysis.hasStoppingMechanism ? 'Has stopping mechanism' : 'No stopping mechanism detected'}`);
+        if (r.analysis.details) {
+          console.log('  Details:');
+          Object.entries(r.analysis.details).forEach(([key, value]) => {
+            if (typeof value === 'boolean') {
+              console.log(`    - ${key}: ${value ? 'Yes' : 'No'}`);
+            }
+          });
+        }
+      }
+      console.log('');
     });
   }
 
