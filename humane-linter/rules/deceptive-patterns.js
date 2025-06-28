@@ -473,6 +473,209 @@ function analyzeMissingAccountDeletion(filePath) {
   }
 }
 
+function analyzeSneakingPatterns(filePath, lineNumber) {
+  try {
+    const content = fs.readFileSync(filePath, 'utf8');
+    const lines = content.split(/\r?\n/);
+    const startLine = Math.max(0, lineNumber - 10);
+    const endLine = Math.min(lines.length, lineNumber + 20);
+    const context = lines.slice(startLine, endLine).join('\n');
+
+    const hasTransparentActions = {
+      hasExplicitConsent: /(consent|permission|agree).*(explicit|clear|obvious|user.*action)/.test(context),
+      hasNoHiddenCharges: /(hidden|secret|obscure).*(charge|fee|cost|price)/.test(context),
+      hasClearCartActions: /(cart|basket).*(add|remove).*(clear|obvious|user.*action)/.test(context),
+      hasNoBundling: /(bundle|package).*(without.*consent|hidden|automatic)/.test(context),
+      hasTransparentPricing: /(price|cost|total).*(transparent|clear|visible|upfront)/.test(context),
+      hasUserInitiated: /(user.*action|click|button).*(required|necessary|explicit)/.test(context)
+    };
+
+    return {
+      hasTransparentActions: Object.values(hasTransparentActions).some(v => v),
+      details: hasTransparentActions
+    };
+  } catch (error) {
+    return {
+      hasTransparentActions: false,
+      details: { error: error.message }
+    };
+  }
+}
+
+function analyzeHiddenSubscriptionPatterns(filePath, lineNumber) {
+  try {
+    const content = fs.readFileSync(filePath, 'utf8');
+    const lines = content.split(/\r?\n/);
+    const startLine = Math.max(0, lineNumber - 10);
+    const endLine = Math.min(lines.length, lineNumber + 20);
+    const context = lines.slice(startLine, endLine).join('\n');
+
+    const hasExplicitSubscription = {
+      hasClearSubscription: /(subscription|billing).*(clear|explicit|obvious|workflow)/.test(context),
+      hasConfirmationFlow: /(confirm|verify|confirm.*subscription).*(subscription|billing|payment)/.test(context),
+      hasNoHiddenBilling: /(hidden|secret|automatic).*(billing|subscription|charge)/.test(context),
+      hasTransparentTerms: /(terms|conditions).*(subscription|billing).*(clear|visible)/.test(context),
+      hasUserConsent: /(consent|permission).*(subscription|billing|payment)/.test(context),
+      hasNoSideEffects: /(side.*effect|automatic).*(billing|subscription|charge)/.test(context)
+    };
+
+    return {
+      hasExplicitSubscription: Object.values(hasExplicitSubscription).some(v => v),
+      details: hasExplicitSubscription
+    };
+  } catch (error) {
+    return {
+      hasExplicitSubscription: false,
+      details: { error: error.message }
+    };
+  }
+}
+
+function analyzeVisualInterferencePatterns(filePath, lineNumber) {
+  try {
+    const content = fs.readFileSync(filePath, 'utf8');
+    const lines = content.split(/\r?\n/);
+    const startLine = Math.max(0, lineNumber - 10);
+    const endLine = Math.min(lines.length, lineNumber + 20);
+    const context = lines.slice(startLine, endLine).join('\n');
+
+    const hasClearVisibility = {
+      hasGoodContrast: /(contrast|color).*(good|high|clear|visible|readable)/.test(context),
+      hasReadableFont: /(font|text).*(size|readable|visible).*(12px|larger|minimum)/.test(context),
+      hasNoHiding: /(opacity|visibility|display).*(hide|obscure|conceal|low)/.test(context),
+      hasClearButtons: /(button|link).*(clear|visible|obvious|prominent)/.test(context),
+      hasImportantInfoVisible: /(important|critical|disclaimer).*(information|text).*(visible|clear|prominent)/.test(context),
+      hasNoDeceptiveStyling: /(style|css).*(deceive|mislead|hide|obscure)/.test(context)
+    };
+
+    return {
+      hasClearVisibility: Object.values(hasClearVisibility).some(v => v),
+      details: hasClearVisibility
+    };
+  } catch (error) {
+    return {
+      hasClearVisibility: false,
+      details: { error: error.message }
+    };
+  }
+}
+
+function analyzeHardToCancelPatterns(filePath, lineNumber) {
+  try {
+    const content = fs.readFileSync(filePath, 'utf8');
+    const lines = content.split(/\r?\n/);
+    const startLine = Math.max(0, lineNumber - 10);
+    const endLine = Math.min(lines.length, lineNumber + 20);
+    const context = lines.slice(startLine, endLine).join('\n');
+
+    const hasEasyCancellation = {
+      hasSimpleCancel: /(cancel|stop|end).*(simple|easy|one.*click|direct)/.test(context),
+      hasNoPhoneRequired: /(cancel|stop).*(phone|call|contact).*(not.*required|avoid)/.test(context),
+      hasDirectCancel: /(cancel|stop).*(direct|immediate|instant|programmatic)/.test(context),
+      hasNoFriction: /(cancel|stop).*(friction|difficult|hard|complex)/.test(context),
+      hasClearProcess: /(cancel|stop).*(process|steps).*(clear|simple|obvious)/.test(context),
+      hasDeleteEndpoint: /(DELETE|delete).*(subscription|account|service)/.test(context)
+    };
+
+    return {
+      hasEasyCancellation: Object.values(hasEasyCancellation).some(v => v),
+      details: hasEasyCancellation
+    };
+  } catch (error) {
+    return {
+      hasEasyCancellation: false,
+      details: { error: error.message }
+    };
+  }
+}
+
+function analyzeFakeUrgencyScarcityPatterns(filePath, lineNumber) {
+  try {
+    const content = fs.readFileSync(filePath, 'utf8');
+    const lines = content.split(/\r?\n/);
+    const startLine = Math.max(0, lineNumber - 10);
+    const endLine = Math.min(lines.length, lineNumber + 20);
+    const context = lines.slice(startLine, endLine).join('\n');
+
+    const hasAuthenticUrgency = {
+      hasRealInventory: /(inventory|stock).*(real|actual|live|dynamic)/.test(context),
+      hasNoFakeTimer: /(timer|countdown).*(fake|artificial|reset|restart)/.test(context),
+      hasTransparentScarcity: /(scarcity|limited).*(transparent|honest|real|actual)/.test(context),
+      hasNoPressure: /(pressure|urgency).*(fake|artificial|manipulate|deceive)/.test(context),
+      hasRealDeadlines: /(deadline|expiry).*(real|actual|genuine|authentic)/.test(context),
+      hasNoStaticNumbers: /(static|hardcoded).*(number|count|stock|inventory)/.test(context)
+    };
+
+    return {
+      hasAuthenticUrgency: Object.values(hasAuthenticUrgency).some(v => v),
+      details: hasAuthenticUrgency
+    };
+  } catch (error) {
+    return {
+      hasAuthenticUrgency: false,
+      details: { error: error.message }
+    };
+  }
+}
+
+function analyzeFakeSocialProofPatterns(filePath, lineNumber) {
+  try {
+    const content = fs.readFileSync(filePath, 'utf8');
+    const lines = content.split(/\r?\n/);
+    const startLine = Math.max(0, lineNumber - 10);
+    const endLine = Math.min(lines.length, lineNumber + 20);
+    const context = lines.slice(startLine, endLine).join('\n');
+
+    const hasAuthenticSocialProof = {
+      hasRealReviews: /(review|testimonial).*(real|authentic|verified|genuine)/.test(context),
+      hasNoFakeData: /(data|statistic|number).*(fake|artificial|generated|hardcoded)/.test(context),
+      hasVerifiedUsers: /(user|reviewer).*(verified|authentic|real|genuine)/.test(context),
+      hasTransparentMetrics: /(metric|statistic).*(transparent|honest|real|actual)/.test(context),
+      hasNoDeception: /(deceive|fake|artificial).*(social|proof|review|testimonial)/.test(context),
+      hasNoHardcodedArrays: /(hardcoded|static).*(array|list).*(review|testimonial|user)/.test(context)
+    };
+
+    return {
+      hasAuthenticSocialProof: Object.values(hasAuthenticSocialProof).some(v => v),
+      details: hasAuthenticSocialProof
+    };
+  } catch (error) {
+    return {
+      hasAuthenticSocialProof: false,
+      details: { error: error.message }
+    };
+  }
+}
+
+function analyzeForcedActionPatterns(filePath, lineNumber) {
+  try {
+    const content = fs.readFileSync(filePath, 'utf8');
+    const lines = content.split(/\r?\n/);
+    const startLine = Math.max(0, lineNumber - 10);
+    const endLine = Math.min(lines.length, lineNumber + 20);
+    const context = lines.slice(startLine, endLine).join('\n');
+
+    const hasVoluntaryActions = {
+      hasOptionalActions: /(action|feature).*(optional|voluntary|choice|user.*decision)/.test(context),
+      hasClearSeparation: /(required|optional).*(clear|separate|distinct|obvious)/.test(context),
+      hasNoBundling: /(bundle|package).*(required|forced|mandatory)/.test(context),
+      hasUserChoice: /(user|customer).*(choice|control|decision|consent)/.test(context),
+      hasNoCoercion: /(coerce|force|pressure).*(action|choice|decision)/.test(context),
+      hasClearConsent: /(consent|permission).*(clear|explicit|separate|granular)/.test(context)
+    };
+
+    return {
+      hasVoluntaryActions: Object.values(hasVoluntaryActions).some(v => v),
+      details: hasVoluntaryActions
+    };
+  } catch (error) {
+    return {
+      hasVoluntaryActions: false,
+      details: { error: error.message }
+    };
+  }
+}
+
 module.exports = [
   {
     name: "Infinite Scroll Pattern",
@@ -549,7 +752,7 @@ module.exports = [
   {
     name: "Preselected Options",
     description: "Pre-selects options that benefit the company rather than the user",
-    regex: /(preselected|default|checked).*(true|yes|opt.*in)/i,
+    regex: /(checked\s*=\s*["']?true["']?|selected\s*=\s*["']?selected["']?|defaultChecked|defaultSelected|preselected|default.*true|opt.*in.*default)/i,
     analyze: analyzePreselectedOptions
   },
   {
@@ -575,5 +778,47 @@ module.exports = [
     description: "No clear way for users to delete their account, making it difficult to leave the service",
     regex: /(settings|account|profile|preferences|user)/i,
     analyze: analyzeMissingAccountDeletion
+  },
+  {
+    name: "Sneaking Patterns",
+    description: "Adds items or charges without explicit user consent",
+    regex: /(input\s+type\s*=\s*["']hidden["']|addEventListener.*cart|addToCart.*without|hidden.*charge|bundle.*without.*consent|side.*effect.*charge)/i,
+    analyze: analyzeSneakingPatterns
+  },
+  {
+    name: "Hidden Subscription Patterns",
+    description: "Creates billing relationships without explicit subscription workflows",
+    regex: /(subscription.*create.*without|billing.*side.*effect|charge.*collaboration|share.*billing|hidden.*subscription)/i,
+    analyze: analyzeHiddenSubscriptionPatterns
+  },
+  {
+    name: "Visual Interference Patterns",
+    description: "Uses poor contrast, small fonts, or hidden styling for important information",
+    regex: /(opacity\s*:\s*[0-9]*\.?[0-9]+|font-size\s*:\s*[0-9]+px|color\s*:\s*#[0-9a-fA-F]{3,6}|visibility\s*:\s*hidden|display\s*:\s*none)/i,
+    analyze: analyzeVisualInterferencePatterns
+  },
+  {
+    name: "Hard to Cancel Patterns",
+    description: "Makes cancellation difficult through complex processes or missing endpoints",
+    regex: /(DELETE.*subscription|cancel.*phone.*call|cancel.*multi.*step|cancel.*customer.*service|asymmetric.*signup.*cancel)/i,
+    analyze: analyzeHardToCancelPatterns
+  },
+  {
+    name: "Fake Urgency/Scarcity Patterns",
+    description: "Creates false urgency or artificial scarcity",
+    regex: /(countdown.*reset|timer.*restart|low.*stock.*static|fake.*activity|artificial.*scarcity|fake.*urgency)/i,
+    analyze: analyzeFakeUrgencyScarcityPatterns
+  },
+  {
+    name: "Fake Social Proof Patterns",
+    description: "Uses fake testimonials, reviews, or user activities",
+    regex: /(fake.*testimonial|hardcoded.*review|fake.*user.*name|artificial.*activity|fake.*social.*proof)/i,
+    analyze: analyzeFakeSocialProofPatterns
+  },
+  {
+    name: "Forced Action Patterns",
+    description: "Bundles required actions with optional ones without clear separation",
+    regex: /(required.*optional.*bundle|cookie.*consent.*bundle|registration.*required.*data|unauthorized.*action)/i,
+    analyze: analyzeForcedActionPatterns
   }
 ];
