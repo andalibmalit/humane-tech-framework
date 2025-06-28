@@ -45,7 +45,7 @@ A CLI tool to scan codebases for deceptive patterns and other anti-patterns that
 - Click the file input and select your `humane-linter-report.json` file.
 - The results will be displayed in a user-friendly format.
 
-## Deceptive Patterns Detected
+## Deceptive Patterns You Could Look For [rules needed]
 - Hidden costs
 - Forced continuity
 - Roach motel
@@ -64,3 +64,6 @@ A CLI tool to scan codebases for deceptive patterns and other anti-patterns that
 
 ## Contributing
 Add new rules in `rules/deceptive-patterns.js` and submit a pull request!
+
+## Note On Current State of Linter
+As of June 28th, 2025, we realized that creating a humane linter is invovled to the extent that it would require funding to give it the time and space it deserves, so it has one rule for now (infinite scroll). To develop this concept further, we created a prompts to run on codebases, which you'll find in the deceptive pattern prompts folder 
