@@ -115,23 +115,20 @@ function main() {
     console.log(`\nFound ${results.length} potential dark pattern(s):\n`);
     results.forEach(r => {
       console.log(`- [${r.pattern}] ${r.description}\n  File: ${r.file}\n  Line: ${r.line}\n  Match: ${r.match}`);
-      if (r.analysis) {
-        console.log(`  Analysis: ${r.analysis.hasStoppingMechanism ? 'Has stopping mechanism' : 'No stopping mechanism detected'}`);
-        if (r.analysis.details) {
-          console.log('  Details:');
-          Object.entries(r.analysis.details).forEach(([key, value]) => {
-            if (typeof value === 'boolean') {
-              console.log(`    - ${key}: ${value ? 'Yes' : 'No'}`);
-            }
-          });
-        }
+      if (r.analysis && r.analysis.details) {
+        console.log('  Details:');
+        Object.entries(r.analysis.details).forEach(([key, value]) => {
+          if (typeof value === 'boolean') {
+            console.log(`    - ${key}: ${value ? 'Yes' : 'No'}`);
+          }
+        });
       }
       console.log('');
     });
   }
 
   // Create reports directory structure
-  const reportsDir = path.join(process.cwd(), 'humane-linter', 'reports');
+  const reportsDir = path.join(process.cwd(), 'reports');
   if (!fs.existsSync(reportsDir)) {
     fs.mkdirSync(reportsDir, { recursive: true });
   }
