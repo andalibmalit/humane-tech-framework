@@ -18,8 +18,6 @@ Primary KPI → Anti-KPI Pairings
 | Content Engagement | Self-harm content interactions            | Automated content flagging         | Any increase in concerning content| Pinterest removing diet/self-harm content                 |
 | User-Generated Content | Body dysmorphia/comparison reports     | Survey + content analysis         | >15% negative body image reports | Instagram's body positivity initiatives                   |
 
-Download as CSV
-
 Success Story: Headspace
 KPI: Meditation session completions
 Anti-KPI: User stress levels before/after sessions
@@ -35,8 +33,6 @@ Advanced Anti-KPI Framework
 | Return Frequency  | Compulsive checking behavior             | Track app opens without notifications | <5 involuntary opens/day         |
 | Engagement Rate   | Missed real-world commitments            | User self-reporting + calendar integration | <3% missed important events      |
 | Feature Usage     | Usage during "protected time" (family dinner, work) | Time-based usage patterns         | <2% usage during designated offline hours |
-
-Download as CSV
 
 Success Story: Apple Screen Time
 Recognition: High engagement wasn't always healthy
@@ -55,8 +51,6 @@ Sophisticated Measurement Approaches
 | User Engagement   | Echo chamber formation                   | Measure ideological diversity of content consumed | Alert when users see <20% diverse viewpoints |
 | Algorithm Optimization | Extreme content recommendation       | Track progression from moderate to extreme content | Intervention when users move 2+ steps toward extremism |
 
-Download as CSV
-
 Success Story: Twitter/X Community Notes
 Problem: Traditional fact-checking was too slow
 Anti-KPI: Time for corrections to reach false content viewers
@@ -74,8 +68,6 @@ Privacy-Focused Anti-KPIs
 | User Profiling Depth | Data vulnerability of sensitive groups | Special protection for health, financial, identity data | Zero tolerance for exploiting vulnerable data |
 | Cross-Platform Tracking | User awareness of tracking           | Transparency about data sharing     | 100% users aware of tracking scope |
 
-Download as CSV
-
 Success Story: Signal
 Philosophy: If you can't collect it, you can't abuse it
 Anti-KPI: Amount of user data available to authorities/hackers
@@ -92,8 +84,6 @@ Democratic Health Metrics
 | User Growth       | Ideological segregation increase         | Measure filter bubble strength      | Break up echo chambers when detected |
 | Content Virality  | Outrage-driven sharing                   | Emotion analysis of viral content   | Limit reach of pure outrage content |
 | Platform Activity | Democratic discourse quality             | Measure constructive vs. destructive political engagement | Promote constructive political content |
-
-Download as CSV
 
 Research Foundation
 Studies show people who share political content are 60% worse at estimating others' beliefs. This perception gap widens when extreme voices are amplified over moderate ones.
