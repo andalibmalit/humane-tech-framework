@@ -56,10 +56,12 @@ A curated collection of resources on humane technology, digital wellbeing, and e
 - [RescueTime](https://www.rescuetime.com/) - Time tracking and focus tools
 - [Forest](https://www.forestapp.cc/) - Gamified focus app
 - [Siempo](https://www.siempo.co/) - Mindful smartphone interface
+- [Anti-KPI Framework](./anti-kpi-framework/README.md) - Templates and philosophy for tracking humane technology failure metrics
 
 ### Development Tools
 - [Ethical Design Toolkit](https://ethicaldesigntoolkit.org/) - For ethical decision making in design
 - [Consequence Scanning](https://doteveryone.org.uk/project/consequence-scanning/) - Method for anticipating impacts of technology
+- [Prosocial Design Network](https://www.prosocialdesign.org/) - "The Prosocial Design Network connects research to practice toward a world in which online spaces are healthy, productive, respect human dignity, and improve society."
 
 ## Online Courses
 
