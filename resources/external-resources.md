@@ -61,6 +61,7 @@ A curated collection of resources on humane technology, digital wellbeing, and e
 ### Development Tools
 - [Ethical Design Toolkit](https://ethicaldesigntoolkit.org/) - For ethical decision making in design
 - [Consequence Scanning](https://doteveryone.org.uk/project/consequence-scanning/) - Method for anticipating impacts of technology
+- [Prosocial Design Network](https://www.prosocialdesign.org/) - "The Prosocial Design Network connects research to practice toward a world in which online spaces are healthy, productive, respect human dignity, and improve society."
 
 ## Online Courses
 
