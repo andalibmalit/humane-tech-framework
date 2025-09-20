@@ -2,3 +2,9 @@ inspect_ai
 google-genai
 openai
 anthropic
+python-dotenv
+sentence-transformers
+scikit-learn
+pandas
+numpy
+cerebras-cloud-sdk
