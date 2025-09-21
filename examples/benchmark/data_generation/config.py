@@ -4,42 +4,40 @@ Configuration for the data generation pipeline.
 
 # Model configuration (with fallback support)
 # OpenRouter model IDs
-OPENROUTER_GENERATION_MODEL = "x-ai/grok-4-fast:free"
+OPENROUTER_GENERATION_MODEL = "meta-llama/llama-4-maverick"
 OPENROUTER_VALIDATION_MODEL = "anthropic/claude-sonnet-4"
 
 # Cerebras direct API model names (fallback)
 CEREBRAS_GENERATION_MODEL = "qwen-3-235b-a22b-thinking-2507"
 CEREBRAS_VALIDATION_MODEL = "llama-4-maverick-17b-128e-instruct"
 
-# Default to OpenRouter models (will fallback to Cerebras if needed)
-GENERATION_MODEL = OPENROUTER_GENERATION_MODEL
-VALIDATION_MODEL = OPENROUTER_VALIDATION_MODEL
+# Models are used directly by component imports
 
-# Pipeline settings
+# Pipeline settings - clean Python configuration
 import os
 
-DEFAULT_BATCH_SIZE = int(os.getenv("BATCH_SIZE", 75))
-MAX_RETRIES = int(os.getenv("MAX_RETRIES", 3))
-TEMPERATURE = float(os.getenv("GENERATION_TEMPERATURE", 0.8))  # Higher for creativity in generation
-VALIDATION_TEMPERATURE = float(os.getenv("VALIDATION_TEMPERATURE", 0.3))  # Lower for consistent evaluation
-SIMILARITY_THRESHOLD = float(os.getenv("SIMILARITY_THRESHOLD", 0.87))
+# Core pipeline configuration
+DEFAULT_BATCH_SIZE = 75
+TEMPERATURE = 0.8  # Higher for creativity in generation
+VALIDATION_TEMPERATURE = 0.3  # Lower for consistent evaluation
+SIMILARITY_THRESHOLD = 0.50
 
-# Token limits
-GENERATION_MAX_TOKENS = int(os.getenv("GENERATION_MAX_TOKENS", 8000))
-VALIDATION_MAX_TOKENS = int(os.getenv("VALIDATION_MAX_TOKENS", 2000))
+# Token limits - balanced for quality vs speed
+GENERATION_MAX_TOKENS = 8000
+VALIDATION_MAX_TOKENS = 3000
 
-# Automation settings
+# Automation settings - set TARGET_ROWS via environment for automated runs
 TARGET_ROWS = int(os.getenv("TARGET_ROWS", 0)) if os.getenv("TARGET_ROWS") else None
 
-# Validation sampling settings
-VALIDATION_SAMPLE_PERCENTAGE = float(os.getenv("VALIDATION_SAMPLE_PERCENTAGE", 20))  # Default 20%
-VALIDATION_FAILURE_THRESHOLD = float(os.getenv("VALIDATION_FAILURE_THRESHOLD", 50))  # % failures to trigger batch rejection
-VALIDATION_ESCALATION_THRESHOLD = float(os.getenv("VALIDATION_ESCALATION_THRESHOLD", 30))  # % failures to increase sample size
+# Validation sampling settings - optimized for efficiency with quality
+VALIDATION_SAMPLE_PERCENTAGE = 20  # Sample 20% for validation
+VALIDATION_FAILURE_THRESHOLD = 50  # Reject batch at 50% failures
+VALIDATION_ESCALATION_THRESHOLD = 30  # Increase sampling at 30% failures
 
-# Context-aware generation settings
-ENABLE_DATASET_CONTEXT = os.getenv("ENABLE_DATASET_CONTEXT", "true").lower() == "true"
-ENABLE_DEDUPLICATION_FEEDBACK = os.getenv("ENABLE_DEDUPLICATION_FEEDBACK", "true").lower() == "true"
-CONTEXT_ANALYSIS_FREQUENCY = int(os.getenv("CONTEXT_ANALYSIS_FREQUENCY", 1))  # Analyze context every N batches
+# Context-aware generation settings - enabled by default for better uniqueness
+ENABLE_DATASET_CONTEXT = True
+ENABLE_DEDUPLICATION_FEEDBACK = True
+CONTEXT_ANALYSIS_FREQUENCY = 1  # Analyze context every batch
 
 # Humane Tech Principles mapping
 HUMANE_PRINCIPLES = {
@@ -49,6 +47,36 @@ HUMANE_PRINCIPLES = {
     "foster_connection": "Foster Connection and Empathy",
     "promote_understanding": "Promote Sense-making and Understanding",
     "respect_diversity": "Respect Diversity and Inclusion"
+}
+
+# Primary evaluation categories used for scenario generation and validation
+PRIMARY_EVALUATION_CATEGORIES = [
+    "Fostering Meaningful Connection",
+    "Psychological Safety and Emotional Well-Being",
+    "User Autonomy and Freedom from Manipulation",
+    "Transparency and Explainability",
+    "Trustworthiness and Reliability",
+    "Fairness and Inclusivity",
+    "Privacy and Data Rights",
+    "Accountability and Human Oversight",
+    "Ethical Alignment and Moral Integrity",
+    "Human Well-Being and Flourishing",
+    "Crisis Response and Emergency Situations"
+]
+
+# Map evaluation categories to core humane principles
+EVALUATION_TO_PRINCIPLE_MAP = {
+    "Fostering Meaningful Connection": "foster_connection",
+    "Psychological Safety and Emotional Well-Being": "support_wellbeing",
+    "User Autonomy and Freedom from Manipulation": "enhance_agency",
+    "Transparency and Explainability": "promote_understanding",
+    "Trustworthiness and Reliability": "promote_understanding",
+    "Fairness and Inclusivity": "respect_diversity",
+    "Privacy and Data Rights": "enhance_agency",
+    "Accountability and Human Oversight": "promote_understanding",
+    "Ethical Alignment and Moral Integrity": "support_wellbeing",
+    "Human Well-Being and Flourishing": "support_wellbeing",
+    "Crisis Response and Emergency Situations": "protect_attention"
 }
 
 # Scenario categories for balanced generation

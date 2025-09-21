@@ -111,11 +111,18 @@ class DataGenerationPipeline:
             else:
                 print(f"\n🔄 Generating {batch_size} scenarios...")
 
+            # Check if we should use web search for inspiration
+            use_web_search = False
+            if deduplication_feedback and deduplication_feedback.get('duplicate_rate', 0) > 50:
+                print(f"🔍 High duplicate rate ({deduplication_feedback['duplicate_rate']:.1f}%) - using web search for fresh inspiration")
+                use_web_search = True
+
             scenarios = self.generator.generate_batch(
                 batch_size=batch_size,
                 context=user_context,
                 dataset_context=dataset_context,
-                deduplication_feedback=deduplication_feedback
+                deduplication_feedback=deduplication_feedback,
+                search_for_inspiration=use_web_search
             )
 
             # Increment batch counter
@@ -137,7 +144,7 @@ class DataGenerationPipeline:
                 if feedback:
                     print("\n📋 VALIDATION FEEDBACK FOR IMPROVEMENT:")
                     print(feedback)
-                    print("\n🔄 Regenerating batch with feedback...")
+                    print("\n🔄 Regenerating batch with feedback and web search for inspiration...")
 
                     # Regenerate with feedback (use fresh context analysis)
                     enhanced_context = f"{user_context}\n\nPREVIOUS BATCH FEEDBACK:\n{feedback}" if user_context else f"PREVIOUS BATCH FEEDBACK:\n{feedback}"
@@ -145,7 +152,8 @@ class DataGenerationPipeline:
                         batch_size=batch_size,
                         context=enhanced_context,
                         dataset_context=dataset_context,
-                        deduplication_feedback=deduplication_feedback
+                        deduplication_feedback=deduplication_feedback,
+                        search_for_inspiration=True  # Use web search when struggling
                     )
 
                     if scenarios:

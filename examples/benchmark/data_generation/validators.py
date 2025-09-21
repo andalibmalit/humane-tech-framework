@@ -15,7 +15,7 @@ from llm_client import FallbackLLMClient
 from config import (OPENROUTER_VALIDATION_MODEL, CEREBRAS_VALIDATION_MODEL, VALIDATION_TEMPERATURE,
                     VALIDATION_MAX_TOKENS, VALIDATION_SAMPLE_PERCENTAGE, VALIDATION_FAILURE_THRESHOLD,
                     VALIDATION_ESCALATION_THRESHOLD)
-from generators import PRIMARY_EVALUATION_CATEGORIES
+from config import PRIMARY_EVALUATION_CATEGORIES
 
 
 class ScenarioValidator:
@@ -67,8 +67,14 @@ class ScenarioValidator:
 
         # Final decision
         if validation_result['should_reject_batch']:
-            print(f"❌ Batch rejected: {validation_result['failure_rate']:.1f}% failure rate exceeds threshold")
-            return [], validation_result['all_reports'], validation_result['feedback']
+            print(f"❌ Batch quality failed: {validation_result['failure_rate']:.1f}% failure rate exceeds threshold")
+            print(f"🔄 Performing individual validation to salvage approved scenarios...")
+
+            # Validate all scenarios individually to salvage the good ones
+            approved_scenarios, all_individual_reports = self._validate_all_scenarios_individually(scenarios, web_search_context)
+
+            print(f"💾 Salvaged {len(approved_scenarios)}/{len(scenarios)} scenarios from failed batch")
+            return approved_scenarios, all_individual_reports, validation_result['feedback']
         else:
             print(f"✅ Batch approved based on sample validation ({validation_result['failure_rate']:.1f}% failure rate)")
             return scenarios, validation_result['all_reports'], None
@@ -272,6 +278,32 @@ class ScenarioValidator:
 
         return prompt
 
+    def _validate_all_scenarios_individually(self, scenarios: List[Dict[str, str]], web_search_context: Dict[str, str]) -> Tuple[List[Dict[str, str]], List[Dict]]:
+        """
+        Validate all scenarios individually to salvage approved ones from a failed batch.
+
+        Returns:
+            Tuple of (approved_scenarios, all_validation_reports)
+        """
+        approved_scenarios = []
+        all_reports = []
+
+        print(f"🔍 Individually validating all {len(scenarios)} scenarios...")
+
+        for i, scenario in enumerate(scenarios):
+            print(f"  Validating scenario {i+1}/{len(scenarios)}...")
+
+            is_approved, report = self._validate_single_scenario_strict(scenario, web_search_context)
+            all_reports.append(report)
+
+            if is_approved:
+                approved_scenarios.append(scenario)
+
+        approval_rate = len(approved_scenarios) / len(scenarios) * 100 if scenarios else 0
+        print(f"📊 Individual validation results: {len(approved_scenarios)}/{len(scenarios)} approved ({approval_rate:.1f}%)")
+
+        return approved_scenarios, all_reports
+
     def _parse_validation_result(self, validation_text: str, scenario: Dict[str, str], web_search_context: Dict[str, str] = None) -> Tuple[bool, Dict]:
         """Parse the validation result into approval status and report."""
         lines = validation_text.strip().split('\n')
@@ -370,6 +402,15 @@ class ScenarioValidator:
         """
         Validate a single scenario with stricter criteria for sampling-based validation.
         """
+        # Print scenario details for manual review
+        print(f"\n📋 SCENARIO BEING VALIDATED:")
+        print(f"   INPUT: {scenario['input']}")
+        print(f"   TARGET: {scenario['target']}")
+        print(f"   CATEGORY: {scenario['category']}")
+        print(f"   SEVERITY: {scenario['severity']}")
+        print(f"   PRINCIPLE: {scenario['principle_to_evaluate']}")
+        print(f"   ---")
+
         validation_prompt = self._build_strict_validation_prompt(scenario, web_search_context)
 
         # Use offline model for individual validations
@@ -388,7 +429,19 @@ class ScenarioValidator:
             )
 
             validation_result = response.choices[0].message.content
-            return self._parse_validation_result(validation_result, scenario, web_search_context)
+            is_approved, report = self._parse_validation_result(validation_result, scenario, web_search_context)
+
+            # Print validation decision for manual review
+            if is_approved:
+                print(f"✅ VALIDATOR DECISION: APPROVED (Score: {report['score']}/100)")
+                print(f"   Reason: {report['reason']}")
+            else:
+                print(f"❌ VALIDATOR DECISION: REJECTED (Score: {report['score']}/100)")
+                print(f"   Reason: {report['reason']}")
+                if report.get('suggestions'):
+                    print(f"   Suggestions: {report['suggestions']}")
+
+            return is_approved, report
 
         except Exception as e:
             print(f"Error validating scenario: {e}")

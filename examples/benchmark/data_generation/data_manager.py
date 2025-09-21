@@ -7,7 +7,7 @@ import pandas as pd
 import shutil
 from pathlib import Path
 from typing import List, Dict
-from config import DATASET_PATH, BACKUP_PATH, HUMANE_PRINCIPLES
+from config import DATASET_PATH, BACKUP_PATH, HUMANE_PRINCIPLES, EVALUATION_TO_PRINCIPLE_MAP
 from semantic_deduplication import SemanticDeduplicator
 
 
@@ -140,18 +140,25 @@ class DataManager:
         print("Semantic deduplication cache cleared")
 
     def get_principle_balance(self) -> Dict[str, float]:
-        """Get the balance of principles in the dataset."""
+        """Get the balance of core humane principles in the dataset."""
         stats = self.get_dataset_stats()
         total = stats['total_rows']
 
         if total == 0:
             return {}
 
-        principle_dist = stats['principle_distribution']
-        return {principle: count/total for principle, count in principle_dist.items()}
+        # Map evaluation categories to core principles
+        principle_counts = {}
+        for eval_category, count in stats['principle_distribution'].items():
+            mapped_principle = EVALUATION_TO_PRINCIPLE_MAP.get(eval_category)
+            if mapped_principle:
+                principle_counts[mapped_principle] = principle_counts.get(mapped_principle, 0) + count
+
+        # Convert to ratios
+        return {principle: count/total for principle, count in principle_counts.items()}
 
     def suggest_needed_principles(self, target_balance: float = 0.167) -> List[str]:
-        """Suggest which principles need more scenarios (target is ~1/6 each)."""
+        """Suggest which core principles need more scenarios (target is ~1/6 each)."""
         balance = self.get_principle_balance()
 
         if not balance:
@@ -159,8 +166,7 @@ class DataManager:
 
         underrepresented = []
         for principle_key, principle_name in HUMANE_PRINCIPLES.items():
-            # Check both possible naming conventions
-            current_ratio = balance.get(principle_name, balance.get(principle_key, 0))
+            current_ratio = balance.get(principle_key, 0)
             if current_ratio < target_balance:
                 underrepresented.append(principle_name)
 
@@ -223,11 +229,13 @@ class DataManager:
                 if count / total_rows < 0.12:  # Less than ~12% representation
                     category_gaps.append(category)
 
-            # Find underrepresented principles
+            # Find underrepresented core principles (using mapping)
             principle_gaps = []
-            for principle, count in stats['principle_distribution'].items():
-                if count / total_rows < 0.12:  # Less than ~12% representation
-                    principle_gaps.append(principle)
+            core_principle_balance = self.get_principle_balance()
+            for principle_key, principle_name in HUMANE_PRINCIPLES.items():
+                current_ratio = core_principle_balance.get(principle_key, 0)
+                if current_ratio < 0.12:  # Less than ~12% representation
+                    principle_gaps.append(principle_name)
 
             # Generate guidance
             guidance_parts = []
@@ -281,7 +289,7 @@ class DataManager:
 
         feedback = {
             "total_cached_scenarios": dedupe_stats.get('total_cached_texts', 0),
-            "similarity_threshold": dedupe_stats.get('similarity_threshold', 0.87),
+            "similarity_threshold": dedupe_stats.get('similarity_threshold', 0.50),
             "session_processed": session_stats.get('total_processed', 0),
             "session_duplicates": session_stats.get('total_duplicates', 0),
             "duplicate_rate": 0,

@@ -4,10 +4,10 @@ This pipeline generates high-quality evaluation scenarios for testing AI assista
 
 ## Features
 
-- **LLM-Assisted Generation**: Uses Claude Sonnet 4 for creative scenario generation
-- **Intelligent Validation**: Uses Grok 4 Fast (free) with web search for quality assessment
+- **LLM-Assisted Generation**: Uses Llama-4-Maverick (OpenRouter) for creative scenario generation
+- **Intelligent Validation**: Uses Claude Sonnet 4 (OpenRouter) with web search for quality assessment
 - **API Fallback**: OpenRouter first, falls back to Cerebras direct API for free tier usage
-- **Semantic Deduplication**: Prevents duplicate scenarios using sentence transformers (87% similarity threshold)
+- **Semantic Deduplication**: Prevents duplicate scenarios using sentence transformers (50% similarity threshold)
 - **Interactive Mode**: Generate in batches with user feedback between iterations
 - **Principle-Aware**: Prioritizes existing evaluation categories while maintaining diversity
 
@@ -21,11 +21,11 @@ This pipeline generates high-quality evaluation scenarios for testing AI assista
    pip install -r requirements.txt
    ```
 
-2. **Set API Key**
+2. **Set API Keys**
    ```bash
-   # Copy template and add your OpenRouter API key
+   # Copy template and add your API keys
    cp data_generation/.env.template data_generation/.env
-   # Edit .env file with your API key
+   # Edit .env file with your OpenRouter and/or Cerebras API keys
    ```
 
 3. **Get OpenRouter API Key**
@@ -94,12 +94,26 @@ The pipeline prioritizes these existing evaluation categories:
 
 ## Configuration
 
-Key settings in `config.py`:
-- `GENERATION_MODEL`: Default Claude Sonnet 4
-- `VALIDATION_MODEL`: Default Grok 4 Fast (free)
+All pipeline settings are configured in `config.py` with sensible defaults:
+
+**Model Configuration:**
+- `OPENROUTER_GENERATION_MODEL`: Llama-4-Maverick
+- `OPENROUTER_VALIDATION_MODEL`: Claude Sonnet 4
+- `CEREBRAS_GENERATION_MODEL`: Qwen-3-235B (fallback)
+- `CEREBRAS_VALIDATION_MODEL`: Llama-4-Maverick (fallback)
+
+**Pipeline Settings:**
 - `DEFAULT_BATCH_SIZE`: 75 scenarios per batch
 - `TEMPERATURE`: 0.8 for generation, 0.3 for validation
-- Similarity threshold: 0.87 for deduplication
+- `SIMILARITY_THRESHOLD`: 0.50 for deduplication
+- `GENERATION_MAX_TOKENS`: 8000, `VALIDATION_MAX_TOKENS`: 3000
+- `VALIDATION_SAMPLE_PERCENTAGE`: 20% for efficiency
+- `ENABLE_DATASET_CONTEXT`: True (context-aware generation)
+- `ENABLE_DEDUPLICATION_FEEDBACK`: True (improve uniqueness)
+
+**Environment Variables:**
+- Only `TARGET_ROWS` can be set via environment for automated runs
+- All other settings are edited directly in `config.py`
 
 ## Output Format
 
