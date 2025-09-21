@@ -9,6 +9,14 @@ import os
 from typing import Optional, Dict, Any, List
 from openai import OpenAI
 
+# Import models from config for health checks
+try:
+    from config import OPENROUTER_GENERATION_MODEL, CEREBRAS_GENERATION_MODEL
+except ImportError:
+    # Fallback values if config import fails
+    OPENROUTER_GENERATION_MODEL = "meta-llama/llama-3.3-70b-instruct:free"
+    CEREBRAS_GENERATION_MODEL = "llama3.1-8b"
+
 
 class FallbackLLMClient:
     def __init__(self, openrouter_api_key: Optional[str] = None, cerebras_api_key: Optional[str] = None):
@@ -114,9 +122,9 @@ class FallbackLLMClient:
         # Test OpenRouter
         if self.openrouter_client:
             try:
-                # Simple test call
+                # Simple test call using configured model
                 test_response = self.openrouter_client.chat.completions.create(
-                    model="meta-llama/llama-3.3-70b-instruct:free",
+                    model=OPENROUTER_GENERATION_MODEL,
                     messages=[{"role": "user", "content": "Hi"}],
                     max_tokens=5
                 )
@@ -129,9 +137,9 @@ class FallbackLLMClient:
         # Test Cerebras
         if self.cerebras_client:
             try:
-                # Simple test call
+                # Simple test call using configured model
                 test_response = self.cerebras_client.chat.completions.create(
-                    model="llama3.1-8b",
+                    model=CEREBRAS_GENERATION_MODEL,
                     messages=[{"role": "user", "content": "Hi"}],
                     max_tokens=5
                 )
