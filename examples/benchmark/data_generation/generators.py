@@ -11,6 +11,7 @@ from config import (
     OPENROUTER_GENERATION_MODEL,
     CEREBRAS_GENERATION_MODEL,
     TEMPERATURE,
+    GENERATION_MAX_TOKENS,
     SCENARIO_CATEGORIES,
     VULNERABLE_POPULATIONS,
     TOPIC_DOMAINS
@@ -76,7 +77,7 @@ class ScenarioGenerator:
                     {"role": "user", "content": user_prompt}
                 ],
                 temperature=TEMPERATURE,
-                max_tokens=8000
+                max_tokens=GENERATION_MAX_TOKENS
             )
 
             # Parse the response

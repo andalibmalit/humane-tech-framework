@@ -17,12 +17,16 @@ sys.path.append(str(Path(__file__).parent))
 from generators import ScenarioGenerator
 from validators import ScenarioValidator
 from data_manager import DataManager
-from config import DEFAULT_BATCH_SIZE
+from config import DEFAULT_BATCH_SIZE, SIMILARITY_THRESHOLD, TARGET_ROWS
 
 
 class DataGenerationPipeline:
-    def __init__(self, api_key: Optional[str] = None, similarity_threshold: float = 0.87):
+    def __init__(self, api_key: Optional[str] = None, similarity_threshold: Optional[float] = None):
         """Initialize the data generation pipeline."""
+        # Use config value if not explicitly provided
+        if similarity_threshold is None:
+            similarity_threshold = SIMILARITY_THRESHOLD
+
         self.generator = ScenarioGenerator(api_key)
         self.validator = ScenarioValidator(api_key)
         self.data_manager = DataManager(similarity_threshold)
@@ -36,6 +40,16 @@ class DataGenerationPipeline:
         print("🎯 HUMANE TECH BENCHMARK DATA GENERATION PIPELINE")
         print("="*60)
 
+        # Check if automated mode is enabled
+        automated_mode = TARGET_ROWS is not None
+        if automated_mode:
+            print(f"🤖 AUTOMATED MODE: Target {TARGET_ROWS} additional rows")
+            starting_rows = self.data_manager.get_dataset_stats()['total_rows']
+            session_rows_added = 0
+            target_reached = False
+        else:
+            print("👤 MANUAL MODE: Press Enter to continue, or type context/commands")
+
         # Show current dataset statistics
         self._show_dataset_stats()
 
@@ -43,20 +57,32 @@ class DataGenerationPipeline:
         user_context = ""
 
         while True:
-            print(f"\n📝 Ready to generate {batch_size} scenarios")
-            print("💡 Current context:", user_context if user_context else "None")
+            # Show progress in automated mode
+            if automated_mode:
+                progress_percent = (session_rows_added / TARGET_ROWS) * 100 if TARGET_ROWS > 0 else 0
+                print(f"\n🤖 AUTOMATED MODE PROGRESS: {session_rows_added}/{TARGET_ROWS} rows ({progress_percent:.1f}%)")
 
-            # Check for stop command
-            user_input = input("\nPress Enter to continue, or provide context/commands: ").strip()
+                # Check if target reached
+                if session_rows_added >= TARGET_ROWS:
+                    print(f"\n🎉 TARGET REACHED! Added {session_rows_added} rows this session")
+                    break
 
-            if "STOP GENERATION" in user_input.upper():
-                print("\n🛑 Generation stopped by user")
-                break
+                print(f"📝 Generating batch {batch_size} scenarios")
+            else:
+                print(f"\n📝 Ready to generate {batch_size} scenarios")
+                print("💡 Current context:", user_context if user_context else "None")
 
-            # Update context if provided
-            if user_input and "STOP GENERATION" not in user_input.upper():
-                user_context = user_input
-                print(f"📝 Context updated: {user_context}")
+                # Check for stop command
+                user_input = input("\nPress Enter to continue, or provide context/commands: ").strip()
+
+                if "STOP GENERATION" in user_input.upper():
+                    print("\n🛑 Generation stopped by user")
+                    break
+
+                # Update context if provided
+                if user_input and "STOP GENERATION" not in user_input.upper():
+                    user_context = user_input
+                    print(f"📝 Context updated: {user_context}")
 
             # Generate scenarios
             print(f"\n🔄 Generating {batch_size} scenarios...")
@@ -71,26 +97,55 @@ class DataGenerationPipeline:
 
             # Validate scenarios
             print(f"\n🔍 Validating {len(scenarios)} scenarios...")
-            approved_scenarios, validation_reports = self.validator.validate_batch(scenarios)
+            approved_scenarios, validation_reports, feedback = self.validator.validate_batch(scenarios)
 
             # Show validation summary
             validation_summary = self.validator.get_validation_summary(validation_reports)
             self._show_validation_summary(validation_summary)
 
             if not approved_scenarios:
-                print("❌ No scenarios passed validation. Continuing to next batch...")
-                continue
+                if feedback:
+                    print("\n📋 VALIDATION FEEDBACK FOR IMPROVEMENT:")
+                    print(feedback)
+                    print("\n🔄 Regenerating batch with feedback...")
+
+                    # Regenerate with feedback
+                    enhanced_context = f"{user_context}\n\nPREVIOUS BATCH FEEDBACK:\n{feedback}" if user_context else f"PREVIOUS BATCH FEEDBACK:\n{feedback}"
+                    scenarios = self.generator.generate_batch(
+                        batch_size=batch_size,
+                        context=enhanced_context
+                    )
+
+                    if scenarios:
+                        print(f"\n🔍 Re-validating {len(scenarios)} improved scenarios...")
+                        approved_scenarios, validation_reports, _ = self.validator.validate_batch(scenarios)
+
+                        if approved_scenarios:
+                            print(f"✅ Feedback integration successful: {len(approved_scenarios)} scenarios approved")
+                        else:
+                            print("❌ Re-generation also failed validation. Continuing to next batch...")
+                            continue
+                    else:
+                        print("❌ Re-generation failed. Continuing to next batch...")
+                        continue
+                else:
+                    print("❌ No scenarios passed validation. Continuing to next batch...")
+                    continue
 
             # Add to dataset (with semantic deduplication)
             print(f"\n💾 Adding {len(approved_scenarios)} approved scenarios to dataset...")
             added_count = self.data_manager.append_rows(approved_scenarios)
+
+            # Update session tracking in automated mode
+            if automated_mode:
+                session_rows_added += added_count
 
             # Show results
             print(f"\n✅ Added {added_count} unique scenarios to dataset")
 
             # Show sample of what was added
             if added_count > 0:
-                self._show_sample_scenarios(approved_scenarios[:3])
+                self._show_sample_scenarios(approved_scenarios)
 
             # Show updated dataset stats
             self._show_dataset_stats()
@@ -150,8 +205,13 @@ class DataGenerationPipeline:
                 approved_scenarios = scenarios
                 validation_reports = []
             else:
-                approved_scenarios, validation_reports = self.validator.validate_batch(scenarios)
+                approved_scenarios, validation_reports, feedback = self.validator.validate_batch(scenarios)
                 all_validation_reports.extend(validation_reports)
+
+                # Handle feedback in batch mode (simpler than interactive)
+                if feedback and not approved_scenarios:
+                    print(f"⚠️ Batch {batch_num + 1} failed validation with feedback - skipping")
+                    continue
 
             # Add to dataset
             if approved_scenarios:
@@ -169,6 +229,113 @@ class DataGenerationPipeline:
 
         print(f"\n🎉 Batch mode completed!")
         print(f"📊 Generated: {total_generated}, Added: {total_added}")
+
+        return final_stats
+
+    def run_automated(self,
+                     target_additional_rows: int,
+                     batch_size: int = None,
+                     context: str = "",
+                     max_attempts: int = None) -> Dict:
+        """
+        Run the pipeline in automated mode until N additional rows are added to the dataset.
+
+        Args:
+            target_additional_rows: Number of additional rows to add to dataset
+            batch_size: Size of each batch (default from config)
+            context: Generation context
+            max_attempts: Maximum batches to attempt (prevents infinite loops)
+
+        Returns:
+            Summary statistics
+        """
+        if batch_size is None:
+            batch_size = DEFAULT_BATCH_SIZE
+
+        if max_attempts is None:
+            # Default: Allow up to 3x target rows in generation attempts
+            max_attempts = (target_additional_rows * 3 + batch_size - 1) // batch_size
+
+        print(f"🤖 AUTOMATED MODE: Adding {target_additional_rows} rows to dataset")
+        print(f"   Batch size: {batch_size}")
+        print(f"   Max attempts: {max_attempts} batches")
+        print(f"   Context: {context if context else 'None'}")
+
+        starting_row_count = self.data_manager.get_dataset_stats()['total_rows']
+        target_total_rows = starting_row_count + target_additional_rows
+
+        total_generated = 0
+        total_added = 0
+        batch_count = 0
+        all_validation_reports = []
+
+        print(f"\n📊 Starting with {starting_row_count} rows, targeting {target_total_rows} total rows")
+
+        while total_added < target_additional_rows and batch_count < max_attempts:
+            batch_count += 1
+            current_total = self.data_manager.get_dataset_stats()['total_rows']
+            remaining_needed = target_total_rows - current_total
+
+            print(f"\n🔄 BATCH {batch_count}/{max_attempts}")
+            print(f"   Progress: {total_added}/{target_additional_rows} rows added")
+            print(f"   Need {remaining_needed} more rows")
+
+            # Generate scenarios
+            scenarios = self.generator.generate_batch(
+                batch_size=batch_size,
+                context=context
+            )
+
+            if not scenarios:
+                print(f"❌ Batch {batch_count} failed to generate scenarios")
+                continue
+
+            total_generated += len(scenarios)
+
+            # Validate scenarios
+            approved_scenarios, validation_reports = self.validator.validate_batch(scenarios)
+            all_validation_reports.extend(validation_reports)
+
+            # Add to dataset
+            if approved_scenarios:
+                batch_added = self.data_manager.append_rows(approved_scenarios)
+                total_added += batch_added
+                print(f"✅ Batch {batch_count}: Added {batch_added} scenarios")
+
+                # Show sample if any were added
+                if batch_added > 0:
+                    self._show_sample_scenarios(approved_scenarios)
+
+                # Check if we've reached our target
+                if total_added >= target_additional_rows:
+                    print(f"\n🎉 TARGET REACHED! Added {total_added} rows in {batch_count} batches")
+                    break
+            else:
+                print(f"❌ Batch {batch_count}: No scenarios added")
+
+        # Final summary
+        final_row_count = self.data_manager.get_dataset_stats()['total_rows']
+        actual_added = final_row_count - starting_row_count
+
+        final_stats = {
+            "target_additional_rows": target_additional_rows,
+            "actual_rows_added": actual_added,
+            "total_generated": total_generated,
+            "batches_processed": batch_count,
+            "success_rate": actual_added / target_additional_rows if target_additional_rows > 0 else 0,
+            "validation_summary": self.validator.get_validation_summary(all_validation_reports) if all_validation_reports else {},
+            "final_dataset_stats": self.data_manager.get_dataset_stats()
+        }
+
+        print(f"\n🏁 AUTOMATED MODE COMPLETED!")
+        print(f"   Target: {target_additional_rows} rows")
+        print(f"   Actual: {actual_added} rows added")
+        print(f"   Success rate: {final_stats['success_rate']:.1%}")
+        print(f"   Batches processed: {batch_count}")
+
+        if actual_added < target_additional_rows:
+            shortfall = target_additional_rows - actual_added
+            print(f"⚠️  Shortfall: {shortfall} rows (reached max attempts or generation issues)")
 
         return final_stats
 
@@ -199,12 +366,25 @@ class DataGenerationPipeline:
                 print(f"     • {reason}: {count}")
 
     def _show_sample_scenarios(self, scenarios: List[Dict]):
-        """Display sample scenarios."""
-        print(f"\n📝 SAMPLE SCENARIOS ADDED:")
-        for i, scenario in enumerate(scenarios, 1):
-            print(f"   {i}. Input: {scenario['input'][:80]}...")
-            print(f"      Category: {scenario['category']}")
-            print(f"      Principle: {scenario['principle_to_evaluate']}")
+        """Display random sample of scenarios (10% of batch)."""
+        import random
+
+        if not scenarios:
+            return
+
+        # Calculate 10% sample size (minimum 1, maximum 10)
+        sample_size = max(1, min(10, len(scenarios) // 10))
+
+        # Get random sample
+        sample = random.sample(scenarios, sample_size)
+
+        print(f"\n📝 SAMPLE SCENARIOS ADDED ({sample_size} of {len(scenarios)}):")
+        for i, scenario in enumerate(sample, 1):
+            print(f"\n   {i}. INPUT: {scenario['input']}")
+            print(f"      TARGET: {scenario['target']}")
+            print(f"      CATEGORY: {scenario['category']}")
+            print(f"      SEVERITY: {scenario['severity']}")
+            print(f"      PRINCIPLE: {scenario['principle_to_evaluate']}")
 
     def _show_final_summary(self):
         """Display final pipeline summary."""

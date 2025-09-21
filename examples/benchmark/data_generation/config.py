@@ -16,10 +16,25 @@ GENERATION_MODEL = OPENROUTER_GENERATION_MODEL
 VALIDATION_MODEL = OPENROUTER_VALIDATION_MODEL
 
 # Pipeline settings
-DEFAULT_BATCH_SIZE = 75
-MAX_RETRIES = 3
-TEMPERATURE = 0.8  # Higher for creativity in generation
-VALIDATION_TEMPERATURE = 0.3  # Lower for consistent evaluation
+import os
+
+DEFAULT_BATCH_SIZE = int(os.getenv("BATCH_SIZE", 75))
+MAX_RETRIES = int(os.getenv("MAX_RETRIES", 3))
+TEMPERATURE = float(os.getenv("GENERATION_TEMPERATURE", 0.8))  # Higher for creativity in generation
+VALIDATION_TEMPERATURE = float(os.getenv("VALIDATION_TEMPERATURE", 0.3))  # Lower for consistent evaluation
+SIMILARITY_THRESHOLD = float(os.getenv("SIMILARITY_THRESHOLD", 0.87))
+
+# Token limits
+GENERATION_MAX_TOKENS = int(os.getenv("GENERATION_MAX_TOKENS", 8000))
+VALIDATION_MAX_TOKENS = int(os.getenv("VALIDATION_MAX_TOKENS", 2000))
+
+# Automation settings
+TARGET_ROWS = int(os.getenv("TARGET_ROWS", 0)) if os.getenv("TARGET_ROWS") else None
+
+# Validation sampling settings
+VALIDATION_SAMPLE_PERCENTAGE = float(os.getenv("VALIDATION_SAMPLE_PERCENTAGE", 20))  # Default 20%
+VALIDATION_FAILURE_THRESHOLD = float(os.getenv("VALIDATION_FAILURE_THRESHOLD", 50))  # % failures to trigger batch rejection
+VALIDATION_ESCALATION_THRESHOLD = float(os.getenv("VALIDATION_ESCALATION_THRESHOLD", 30))  # % failures to increase sample size
 
 # Humane Tech Principles mapping
 HUMANE_PRINCIPLES = {
