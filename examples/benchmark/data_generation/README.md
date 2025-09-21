@@ -105,7 +105,7 @@ All pipeline settings are configured in `config.py` with sensible defaults:
 **Pipeline Settings:**
 - `DEFAULT_BATCH_SIZE`: 75 scenarios per batch
 - `TEMPERATURE`: 0.8 for generation, 0.3 for validation
-- `SIMILARITY_THRESHOLD`: 0.50 for deduplication
+- `SIMILARITY_THRESHOLD`: 0.60 for deduplication
 - `GENERATION_MAX_TOKENS`: 8000, `VALIDATION_MAX_TOKENS`: 3000
 - `VALIDATION_SAMPLE_PERCENTAGE`: 20% for efficiency
 - `ENABLE_DATASET_CONTEXT`: True (context-aware generation)

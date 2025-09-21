@@ -289,7 +289,7 @@ class DataManager:
 
         feedback = {
             "total_cached_scenarios": dedupe_stats.get('total_cached_texts', 0),
-            "similarity_threshold": dedupe_stats.get('similarity_threshold', 0.50),
+            "similarity_threshold": dedupe_stats.get('similarity_threshold', 0.60),
             "session_processed": session_stats.get('total_processed', 0),
             "session_duplicates": session_stats.get('total_duplicates', 0),
             "duplicate_rate": 0,

@@ -13,7 +13,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 class SemanticDeduplicator:
     def __init__(self,
                  model_name: str = "sentence-transformers/all-MiniLM-L6-v2",
-                 similarity_threshold: float = 0.50,
+                 similarity_threshold: float = 0.60,
                  cache_dir: str = None):
         """
         Initialize semantic deduplicator.

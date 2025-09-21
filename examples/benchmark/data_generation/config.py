@@ -4,7 +4,7 @@ Configuration for the data generation pipeline.
 
 # Model configuration (with fallback support)
 # OpenRouter model IDs
-OPENROUTER_GENERATION_MODEL = "meta-llama/llama-4-maverick"
+OPENROUTER_GENERATION_MODEL = "anthropic/claude-sonnet-4"
 OPENROUTER_VALIDATION_MODEL = "anthropic/claude-sonnet-4"
 
 # Cerebras direct API model names (fallback)
@@ -20,7 +20,7 @@ import os
 DEFAULT_BATCH_SIZE = 75
 TEMPERATURE = 0.8  # Higher for creativity in generation
 VALIDATION_TEMPERATURE = 0.3  # Lower for consistent evaluation
-SIMILARITY_THRESHOLD = 0.50
+SIMILARITY_THRESHOLD = 0.60
 
 # Token limits - balanced for quality vs speed
 GENERATION_MAX_TOKENS = 8000
