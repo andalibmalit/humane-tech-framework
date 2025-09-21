@@ -17,7 +17,8 @@ sys.path.append(str(Path(__file__).parent))
 from generators import ScenarioGenerator
 from validators import ScenarioValidator
 from data_manager import DataManager
-from config import DEFAULT_BATCH_SIZE, SIMILARITY_THRESHOLD, TARGET_ROWS
+from config import (DEFAULT_BATCH_SIZE, SIMILARITY_THRESHOLD, TARGET_ROWS,
+                    ENABLE_DATASET_CONTEXT, ENABLE_DEDUPLICATION_FEEDBACK, CONTEXT_ANALYSIS_FREQUENCY)
 
 
 class DataGenerationPipeline:
@@ -31,8 +32,15 @@ class DataGenerationPipeline:
         self.validator = ScenarioValidator(api_key)
         self.data_manager = DataManager(similarity_threshold)
 
+        # Initialize context tracking
+        self.batch_counter = 0
+
         print("🚀 Data Generation Pipeline Initialized")
         print(f"📊 Current dataset: {self.data_manager.get_dataset_stats()['total_rows']} rows")
+        if ENABLE_DATASET_CONTEXT or ENABLE_DEDUPLICATION_FEEDBACK:
+            print("🎯 Context-aware generation: ENABLED")
+        else:
+            print("🎯 Context-aware generation: DISABLED")
 
     def run_interactive(self):
         """Run the pipeline in interactive mode."""
@@ -84,12 +92,34 @@ class DataGenerationPipeline:
                     user_context = user_input
                     print(f"📝 Context updated: {user_context}")
 
+            # Conditionally gather context based on settings and frequency
+            dataset_context = None
+            deduplication_feedback = None
+
+            if (ENABLE_DATASET_CONTEXT or ENABLE_DEDUPLICATION_FEEDBACK) and (self.batch_counter % CONTEXT_ANALYSIS_FREQUENCY == 0):
+                print(f"\n📊 Analyzing existing dataset for context-aware generation...")
+
+                if ENABLE_DATASET_CONTEXT:
+                    dataset_context = self.data_manager.get_diversity_analysis()
+
+                if ENABLE_DEDUPLICATION_FEEDBACK:
+                    deduplication_feedback = self.data_manager.get_deduplication_feedback()
+
             # Generate scenarios
-            print(f"\n🔄 Generating {batch_size} scenarios...")
+            if dataset_context or deduplication_feedback:
+                print(f"\n🔄 Generating {batch_size} context-aware scenarios...")
+            else:
+                print(f"\n🔄 Generating {batch_size} scenarios...")
+
             scenarios = self.generator.generate_batch(
                 batch_size=batch_size,
-                context=user_context
+                context=user_context,
+                dataset_context=dataset_context,
+                deduplication_feedback=deduplication_feedback
             )
+
+            # Increment batch counter
+            self.batch_counter += 1
 
             if not scenarios:
                 print("❌ No scenarios generated. Check your API key and model availability.")
@@ -109,11 +139,13 @@ class DataGenerationPipeline:
                     print(feedback)
                     print("\n🔄 Regenerating batch with feedback...")
 
-                    # Regenerate with feedback
+                    # Regenerate with feedback (use fresh context analysis)
                     enhanced_context = f"{user_context}\n\nPREVIOUS BATCH FEEDBACK:\n{feedback}" if user_context else f"PREVIOUS BATCH FEEDBACK:\n{feedback}"
                     scenarios = self.generator.generate_batch(
                         batch_size=batch_size,
-                        context=enhanced_context
+                        context=enhanced_context,
+                        dataset_context=dataset_context,
+                        deduplication_feedback=deduplication_feedback
                     )
 
                     if scenarios:

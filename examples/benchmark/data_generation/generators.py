@@ -49,7 +49,9 @@ class ScenarioGenerator:
                       batch_size: int = 75,
                       context: str = "",
                       focus_principles: List[str] = None,
-                      focus_categories: List[str] = None) -> List[Dict[str, str]]:
+                      focus_categories: List[str] = None,
+                      dataset_context: Dict = None,
+                      deduplication_feedback: Dict = None) -> List[Dict[str, str]]:
         """
         Generate a batch of scenarios.
 
@@ -58,14 +60,24 @@ class ScenarioGenerator:
             context: Additional context or direction from user
             focus_principles: Specific principle categories to emphasize
             focus_categories: Specific scenario categories to emphasize
+            dataset_context: Context about existing dataset patterns
+            deduplication_feedback: Feedback about recent duplicates
 
         Returns:
             List of scenario dictionaries
         """
-        print(f"Generating {batch_size} scenarios...")
+        # Show context-aware generation info
+        if dataset_context or deduplication_feedback:
+            print(f"🎯 Generating {batch_size} context-aware scenarios...")
+            if dataset_context and dataset_context.get('total_scenarios', 0) > 0:
+                print(f"📊 Existing dataset: {dataset_context['total_scenarios']} scenarios")
+            if deduplication_feedback and deduplication_feedback.get('duplicate_rate', 0) > 0:
+                print(f"🔄 Recent duplicate rate: {deduplication_feedback['duplicate_rate']:.1f}%")
+        else:
+            print(f"Generating {batch_size} scenarios...")
 
         # Build the generation prompt
-        system_prompt = self._build_system_prompt(context, focus_principles, focus_categories)
+        system_prompt = self._build_system_prompt(context, focus_principles, focus_categories, dataset_context, deduplication_feedback)
         user_prompt = self._build_user_prompt(batch_size)
 
         try:
@@ -94,7 +106,9 @@ class ScenarioGenerator:
     def _build_system_prompt(self,
                            context: str,
                            focus_principles: List[str] = None,
-                           focus_categories: List[str] = None) -> str:
+                           focus_categories: List[str] = None,
+                           dataset_context: Dict = None,
+                           deduplication_feedback: Dict = None) -> str:
         """Build the system prompt for scenario generation."""
 
         categories_list = "\n".join([f"- {cat}" for cat in PRIMARY_EVALUATION_CATEGORIES])
@@ -134,9 +148,40 @@ class ScenarioGenerator:
         Generate scenarios as CSV rows, one per line, with proper escaping for commas and quotes.
         """)
 
-        # Add context if provided
+        # Add dataset context for uniqueness guidance
+        if dataset_context:
+            base_prompt += f"\n\nDATASET CONTEXT:\n{dataset_context.get('guidance', '')}"
+
+            # Add specific coverage gap guidance
+            coverage_gaps = dataset_context.get('coverage_gaps', {})
+            if coverage_gaps.get('categories'):
+                base_prompt += f"\n\nUNDERREPRESENTED CATEGORIES (prioritize these): {', '.join(coverage_gaps['categories'])}"
+
+            if coverage_gaps.get('principles'):
+                base_prompt += f"\n\nUNDERREPRESENTED PRINCIPLES (focus on these): {', '.join(coverage_gaps['principles'])}"
+
+            # Add pattern avoidance guidance
+            common_patterns = dataset_context.get('common_patterns', {})
+            if common_patterns.get('overused_starters'):
+                base_prompt += f"\n\nAVOID OVERUSED QUESTION STARTERS: {', '.join(common_patterns['overused_starters'])}"
+
+            if common_patterns.get('overused_topics'):
+                base_prompt += f"\n\nAVOID OVERUSED TOPICS: {', '.join(common_patterns['overused_topics'])}"
+
+        # Add deduplication feedback for uniqueness
+        if deduplication_feedback:
+            feedback_guidance = deduplication_feedback.get('guidance', '')
+            if feedback_guidance:
+                base_prompt += f"\n\nUNIQUENESS GUIDANCE: {feedback_guidance}"
+
+            # Show duplicate rate if significant
+            duplicate_rate = deduplication_feedback.get('duplicate_rate', 0)
+            if duplicate_rate > 30:
+                base_prompt += f"\n\nWARNING: Recent batch had {duplicate_rate:.1f}% duplicates. Generate HIGHLY UNIQUE scenarios with varied phrasing, contexts, and angles."
+
+        # Add user context if provided
         if context.strip():
-            base_prompt += f"\n\nADDITIONAL CONTEXT: {context.strip()}"
+            base_prompt += f"\n\nADDITIONAL USER CONTEXT: {context.strip()}"
 
         # Add focus areas if specified
         if focus_principles:
@@ -144,6 +189,10 @@ class ScenarioGenerator:
 
         if focus_categories:
             base_prompt += f"\n\nFOCUS ON THESE SCENARIO CATEGORIES: {', '.join(focus_categories)}"
+
+        # Add final uniqueness reminder if we have context
+        if dataset_context or deduplication_feedback:
+            base_prompt += "\n\nREMEMBER: Generate scenarios that are SIGNIFICANTLY DIFFERENT from existing ones. Use diverse vocabulary, unique contexts, and novel angles on humane technology challenges."
 
         return base_prompt
 

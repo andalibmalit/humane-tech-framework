@@ -39,6 +39,14 @@ class SemanticDeduplicator:
         # Load existing embeddings and texts
         self.existing_embeddings, self.existing_texts = self._load_cache()
 
+        # Track recent deduplication patterns for feedback
+        self.recent_duplicates = []  # Store recent duplicate patterns
+        self.session_stats = {
+            "total_processed": 0,
+            "total_duplicates": 0,
+            "common_duplicate_patterns": {}
+        }
+
     def _load_cache(self) -> Tuple[np.ndarray, List[str]]:
         """Load cached embeddings and texts."""
         try:
@@ -104,6 +112,9 @@ class SemanticDeduplicator:
         duplicate_indices = []
         similarity_scores = []
 
+        # Update session stats
+        self.session_stats["total_processed"] += len(new_texts)
+
         for i, new_embedding in enumerate(new_embeddings):
             # Compute cosine similarity with all existing embeddings
             similarities = cosine_similarity([new_embedding], self.existing_embeddings)[0]
@@ -120,7 +131,47 @@ class SemanticDeduplicator:
                 print(f"    New: {new_texts[i][:100]}...")
                 print(f"    Existing: {most_similar_text[:100]}...")
 
+                # Store duplicate pattern for feedback analysis
+                self._analyze_duplicate_pattern(new_texts[i], most_similar_text, max_similarity)
+
+        # Update duplicate count
+        self.session_stats["total_duplicates"] += len(duplicate_indices)
+
         return duplicate_indices, similarity_scores
+
+    def _analyze_duplicate_pattern(self, new_text: str, existing_text: str, similarity: float):
+        """Analyze and store duplicate patterns for feedback generation."""
+        # Extract pattern type
+        new_words = set(new_text.lower().split())
+        existing_words = set(existing_text.lower().split())
+
+        # Find common patterns
+        common_words = new_words & existing_words
+        if len(common_words) > 3:  # Significant word overlap
+            # Extract key pattern indicators
+            pattern_type = "word_overlap"
+            if any(word in new_text.lower() and word in existing_text.lower()
+                   for word in ["how to", "what is", "help me", "should i"]):
+                pattern_type = "question_structure"
+            elif any(word in common_words for word in ["advice", "guidance", "recommend", "suggest"]):
+                pattern_type = "advice_seeking"
+
+            # Store for feedback
+            self.recent_duplicates.append({
+                "new_text": new_text[:100],
+                "existing_text": existing_text[:100],
+                "similarity": similarity,
+                "pattern_type": pattern_type,
+                "common_words": list(common_words)[:5]  # Top 5 common words
+            })
+
+            # Update pattern frequency
+            self.session_stats["common_duplicate_patterns"][pattern_type] = \
+                self.session_stats["common_duplicate_patterns"].get(pattern_type, 0) + 1
+
+        # Keep only recent duplicates (last 50)
+        if len(self.recent_duplicates) > 50:
+            self.recent_duplicates = self.recent_duplicates[-50:]
 
     def filter_duplicates(self, new_texts: List[str],
                          new_data: List[dict] = None) -> Tuple[List[str], List[dict]]:
@@ -171,8 +222,56 @@ class SemanticDeduplicator:
             "cache_files_exist": {
                 "embeddings": self.embeddings_cache_file.exists(),
                 "texts": self.texts_cache_file.exists()
-            }
+            },
+            "session_stats": self.session_stats.copy(),
+            "recent_duplicate_count": len(self.recent_duplicates)
         }
+
+    def get_deduplication_feedback(self) -> str:
+        """Generate feedback for improving scenario uniqueness."""
+        if self.session_stats["total_processed"] == 0:
+            return ""
+
+        duplicate_rate = (self.session_stats["total_duplicates"] / self.session_stats["total_processed"]) * 100
+
+        feedback_parts = []
+
+        if duplicate_rate > 80:
+            feedback_parts.append("CRITICAL: Very high duplication rate (80%+). Generate significantly more unique scenarios.")
+        elif duplicate_rate > 50:
+            feedback_parts.append("HIGH: High duplication rate (50%+). Focus on unique phrasing and contexts.")
+        elif duplicate_rate > 20:
+            feedback_parts.append("MODERATE: Some duplication detected. Vary sentence structures and topics.")
+
+        # Analyze common patterns
+        if self.session_stats["common_duplicate_patterns"]:
+            patterns = self.session_stats["common_duplicate_patterns"]
+            most_common = max(patterns.items(), key=lambda x: x[1])
+
+            if most_common[0] == "question_structure":
+                feedback_parts.append("Avoid repetitive question formats like 'How to...', 'What is...', 'Should I...'")
+            elif most_common[0] == "advice_seeking":
+                feedback_parts.append("Vary advice-seeking scenarios beyond 'recommend', 'suggest', 'guidance'")
+            elif most_common[0] == "word_overlap":
+                feedback_parts.append("Use more diverse vocabulary and contexts")
+
+        # Recent duplicate analysis
+        if len(self.recent_duplicates) > 5:
+            # Find common words across recent duplicates
+            all_common_words = []
+            for dup in self.recent_duplicates[-10:]:  # Last 10 duplicates
+                all_common_words.extend(dup.get("common_words", []))
+
+            if all_common_words:
+                word_freq = {}
+                for word in all_common_words:
+                    word_freq[word] = word_freq.get(word, 0) + 1
+
+                overused_words = [word for word, count in word_freq.items() if count > 2]
+                if overused_words:
+                    feedback_parts.append(f"Avoid overused words: {', '.join(overused_words[:5])}")
+
+        return " ".join(feedback_parts)
 
     def clear_cache(self):
         """Clear the embeddings cache."""

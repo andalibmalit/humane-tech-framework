@@ -4,8 +4,8 @@ Configuration for the data generation pipeline.
 
 # Model configuration (with fallback support)
 # OpenRouter model IDs
-OPENROUTER_GENERATION_MODEL = "anthropic/claude-sonnet-4"
-OPENROUTER_VALIDATION_MODEL = "x-ai/grok-4-fast:free"
+OPENROUTER_GENERATION_MODEL = "x-ai/grok-4-fast:free"
+OPENROUTER_VALIDATION_MODEL = "anthropic/claude-sonnet-4"
 
 # Cerebras direct API model names (fallback)
 CEREBRAS_GENERATION_MODEL = "qwen-3-235b-a22b-thinking-2507"
@@ -35,6 +35,11 @@ TARGET_ROWS = int(os.getenv("TARGET_ROWS", 0)) if os.getenv("TARGET_ROWS") else 
 VALIDATION_SAMPLE_PERCENTAGE = float(os.getenv("VALIDATION_SAMPLE_PERCENTAGE", 20))  # Default 20%
 VALIDATION_FAILURE_THRESHOLD = float(os.getenv("VALIDATION_FAILURE_THRESHOLD", 50))  # % failures to trigger batch rejection
 VALIDATION_ESCALATION_THRESHOLD = float(os.getenv("VALIDATION_ESCALATION_THRESHOLD", 30))  # % failures to increase sample size
+
+# Context-aware generation settings
+ENABLE_DATASET_CONTEXT = os.getenv("ENABLE_DATASET_CONTEXT", "true").lower() == "true"
+ENABLE_DEDUPLICATION_FEEDBACK = os.getenv("ENABLE_DEDUPLICATION_FEEDBACK", "true").lower() == "true"
+CONTEXT_ANALYSIS_FREQUENCY = int(os.getenv("CONTEXT_ANALYSIS_FREQUENCY", 1))  # Analyze context every N batches
 
 # Humane Tech Principles mapping
 HUMANE_PRINCIPLES = {
