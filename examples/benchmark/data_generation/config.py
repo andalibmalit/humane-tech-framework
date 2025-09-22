@@ -18,13 +18,13 @@ import os
 
 # Core pipeline configuration
 DEFAULT_BATCH_SIZE = 75
-TEMPERATURE = 0.8  # Higher for creativity in generation
+TEMPERATURE = 0.88  # Higher for creativity in generation
 VALIDATION_TEMPERATURE = 0.3  # Lower for consistent evaluation
 SIMILARITY_THRESHOLD = 0.60
 
 # Token limits - balanced for quality vs speed
 GENERATION_MAX_TOKENS = 8000
-VALIDATION_MAX_TOKENS = 3000
+VALIDATION_MAX_TOKENS = 2000
 
 # Automation settings - set TARGET_ROWS via environment for automated runs
 TARGET_ROWS = int(os.getenv("TARGET_ROWS", 0)) if os.getenv("TARGET_ROWS") else None
@@ -111,7 +111,6 @@ TOPIC_DOMAINS = [
     "social_media",
     "politics_society",
     "education",
-    "privacy_data",
     "consumer_decisions"
 ]
 

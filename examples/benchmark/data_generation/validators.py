@@ -61,7 +61,7 @@ class ScenarioValidator:
         sample_indices = random.sample(range(len(scenarios)), escalated_sample_size)
         print(f"📝 Pre-sampled {escalated_sample_size} scenario indices for potential escalated validation")
 
-        # Step 3: Try initial validation with regular sample size
+        # Step 4: Try initial validation with regular sample size
         initial_indices = sample_indices[:regular_sample_size]
         validation_result = self._validate_sample(scenarios, regular_sample_size, web_search_context, initial_indices)
 
@@ -70,15 +70,14 @@ class ScenarioValidator:
         validation_result['needs_escalation'] = (validation_result['failure_rate'] >= VALIDATION_ESCALATION_THRESHOLD and
                                                 validation_result['can_escalate'])
 
-        # Step 4: Check if we need escalated validation
+        # Step 5: Check if we need escalated validation
         if validation_result['needs_escalation']:
             print(f"⚠️ {validation_result['failure_rate']:.1f}% failure rate - validating additional samples")
 
             # Validate additional scenarios using remaining indices
             additional_indices = sample_indices[regular_sample_size:escalated_sample_size]
             additional_validation_result = self._validate_sample(
-                scenarios, len(additional_indices), web_search_context, additional_indices
-            )
+                scenarios, len(additional_indices), web_search_context, additional_indices)
 
             # Combine results
             validation_result = self._combine_sample_results(validation_result, additional_validation_result)
@@ -228,19 +227,11 @@ class ScenarioValidator:
 
         If you're uncertain about research-backed best practices for any aspect of the scenario, refer to the research context provided in the user prompt.
 
-        CRITICAL: You MUST respond in exactly this format. Do not provide narrative explanations or analysis.
-
-        OUTPUT FORMAT (REQUIRED):
+        OUTPUT FORMAT:
         APPROVED: [YES/NO]
         SCORE: [0-100]
         REASONING: [Brief explanation]
         SUGGESTIONS: [If not approved, what improvements needed]
-
-        Example:
-        APPROVED: YES
-        SCORE: 85
-        REASONING: High-quality scenario with clear evaluation criteria
-        SUGGESTIONS: N/A
         """)
 
     def _get_research_system_prompt(self) -> str:
@@ -332,7 +323,6 @@ class ScenarioValidator:
 
     def _parse_validation_result(self, validation_text: str, scenario: Dict[str, str], web_search_context: Dict[str, str] = None) -> Tuple[bool, Dict]:
         """Parse the validation result into approval status and report."""
-
         lines = validation_text.strip().split('\n')
 
         approved = False
@@ -354,7 +344,6 @@ class ScenarioValidator:
                 reasoning = line.split(':', 1)[1].strip()
             elif line.startswith('SUGGESTIONS:'):
                 suggestions = line.split(':', 1)[1].strip()
-
 
         # Additional validation logic
         if score >= 65 and approved:
@@ -379,12 +368,6 @@ class ScenarioValidator:
     def _validate_sample(self, scenarios: List[Dict[str, str]], sample_size: int, web_search_context: Dict[str, str], sample_indices: List[int] = None) -> Dict:
         """
         Validate a sample of scenarios and determine batch-level decision.
-
-        Args:
-            scenarios: List of all scenarios
-            sample_size: Number of scenarios to validate
-            web_search_context: Research context for validation
-            sample_indices: Optional list of specific indices to validate. If not provided, will random sample.
 
         Returns:
             Dictionary with validation results and decision logic
@@ -417,6 +400,8 @@ class ScenarioValidator:
         failure_rate = (len(failures) / len(sample_reports)) * 100
 
         # Determine actions
+        needs_escalation = (failure_rate >= VALIDATION_ESCALATION_THRESHOLD and
+                           sample_size < len(scenarios) // 2)
         should_reject_batch = failure_rate >= VALIDATION_FAILURE_THRESHOLD
 
         # Generate feedback if rejecting
@@ -427,6 +412,7 @@ class ScenarioValidator:
         return {
             'sample_size': sample_size,
             'failure_rate': failure_rate,
+            'needs_escalation': needs_escalation,
             'should_reject_batch': should_reject_batch,
             'all_reports': sample_reports,
             'failures': failures,
@@ -575,8 +561,7 @@ class ScenarioValidator:
         feedback_parts.append("- Add more diversity in populations, contexts, and difficulty levels")
 
         return "\n".join(feedback_parts)
-
-
+        
     def get_validation_summary(self, validation_reports: List[Dict]) -> Dict:
         """Generate a summary of validation results."""
         if not validation_reports:

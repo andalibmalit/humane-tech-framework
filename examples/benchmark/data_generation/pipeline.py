@@ -174,7 +174,7 @@ class DataGenerationPipeline:
 
             # Add to dataset (with semantic deduplication)
             print(f"\n💾 Adding {len(approved_scenarios)} approved scenarios to dataset...")
-            added_count, actually_added_scenarios = self.data_manager.append_rows(approved_scenarios)
+            added_count = self.data_manager.append_rows(approved_scenarios)
 
             # Update session tracking in automated mode
             if automated_mode:
@@ -183,9 +183,9 @@ class DataGenerationPipeline:
             # Show results
             print(f"\n✅ Added {added_count} unique scenarios to dataset")
 
-            # Show sample of what was actually added to the dataset
+            # Show sample of what was added
             if added_count > 0:
-                self._show_sample_scenarios(actually_added_scenarios)
+                self._show_sample_scenarios(approved_scenarios)
 
             # Show updated dataset stats
             self._show_dataset_stats()
@@ -255,7 +255,7 @@ class DataGenerationPipeline:
 
             # Add to dataset
             if approved_scenarios:
-                added_count, _ = self.data_manager.append_rows(approved_scenarios)
+                added_count = self.data_manager.append_rows(approved_scenarios)
                 total_added += added_count
                 print(f"✅ Batch {batch_num + 1}: Added {added_count} scenarios")
 
@@ -333,18 +333,18 @@ class DataGenerationPipeline:
             total_generated += len(scenarios)
 
             # Validate scenarios
-            approved_scenarios, validation_reports, feedback = self.validator.validate_batch(scenarios)
+            approved_scenarios, validation_reports = self.validator.validate_batch(scenarios)
             all_validation_reports.extend(validation_reports)
 
             # Add to dataset
             if approved_scenarios:
-                batch_added, actually_added_in_batch = self.data_manager.append_rows(approved_scenarios)
+                batch_added = self.data_manager.append_rows(approved_scenarios)
                 total_added += batch_added
                 print(f"✅ Batch {batch_count}: Added {batch_added} scenarios")
 
                 # Show sample if any were added
                 if batch_added > 0:
-                    self._show_sample_scenarios(actually_added_in_batch)
+                    self._show_sample_scenarios(approved_scenarios)
 
                 # Check if we've reached our target
                 if total_added >= target_additional_rows:
@@ -406,12 +406,20 @@ class DataGenerationPipeline:
                 print(f"     • {reason}: {count}")
 
     def _show_sample_scenarios(self, scenarios: List[Dict]):
-        """Display all scenarios that were actually added to the dataset."""
+        """Display random sample of scenarios (10% of batch)."""
+        import random
+
         if not scenarios:
             return
 
-        print(f"\n📝 ALL SCENARIOS ADDED ({len(scenarios)}):")
-        for i, scenario in enumerate(scenarios, 1):
+        # Calculate 10% sample size (minimum 1, maximum 10)
+        sample_size = max(1, min(10, len(scenarios) // 10))
+
+        # Get random sample
+        sample = random.sample(scenarios, sample_size)
+
+        print(f"\n📝 SAMPLE SCENARIOS ADDED ({sample_size} of {len(scenarios)}):")
+        for i, scenario in enumerate(sample, 1):
             print(f"\n   {i}. INPUT: {scenario['input']}")
             print(f"      TARGET: {scenario['target']}")
             print(f"      CATEGORY: {scenario['category']}")
