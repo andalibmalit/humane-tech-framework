@@ -1,3 +1,6 @@
+*claude.md
+examples/benchmark/data_generation/embeddings_cache/
+
 # Dependencies
 node_modules/
 package-lock.json
