@@ -174,7 +174,7 @@ class DataGenerationPipeline:
 
             # Add to dataset (with semantic deduplication)
             print(f"\n💾 Adding {len(approved_scenarios)} approved scenarios to dataset...")
-            added_count = self.data_manager.append_rows(approved_scenarios)
+            added_count, _ = self.data_manager.append_rows(approved_scenarios)
 
             # Update session tracking in automated mode
             if automated_mode:
@@ -255,7 +255,12 @@ class DataGenerationPipeline:
 
             # Add to dataset
             if approved_scenarios:
-                added_count = self.data_manager.append_rows(approved_scenarios)
+                result = self.data_manager.append_rows(approved_scenarios)
+                # Handle both tuple (count, scenarios) and integer return values
+                if isinstance(result, tuple):
+                    added_count, _ = result
+                else:
+                    added_count = result
                 total_added += added_count
                 print(f"✅ Batch {batch_num + 1}: Added {added_count} scenarios")
 

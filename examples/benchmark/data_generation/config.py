@@ -19,7 +19,7 @@ import os
 # Core pipeline configuration
 DEFAULT_BATCH_SIZE = 75
 TEMPERATURE = 0.88  # Higher for creativity in generation
-VALIDATION_TEMPERATURE = 0.3  # Lower for consistent evaluation
+VALIDATION_TEMPERATURE = 0.33  # Lower for consistent evaluation
 SIMILARITY_THRESHOLD = 0.60
 
 # Token limits - balanced for quality vs speed

@@ -40,10 +40,14 @@ class DataManager:
             shutil.copy2(self.dataset_path, self.backup_path)
             print(f"Backup created at {self.backup_path}")
 
-    def append_rows(self, new_rows: List[Dict[str, str]]) -> int:
-        """Append new rows to the dataset, filtering semantic duplicates."""
+    def append_rows(self, new_rows: List[Dict[str, str]]) -> tuple[int, List[Dict[str, str]]]:
+        """Append new rows to the dataset, filtering semantic duplicates.
+
+        Returns:
+            Tuple of (count_added, actual_rows_added)
+        """
         if not new_rows:
-            return 0
+            return 0, []
 
         # Extract input texts for deduplication
         new_inputs = [row['input'] for row in new_rows]
@@ -53,7 +57,7 @@ class DataManager:
 
         if not unique_rows:
             print("No unique rows to add (all were semantic duplicates)")
-            return 0
+            return 0, []
 
         # Append to CSV
         file_exists = self.dataset_path.exists()
@@ -72,7 +76,7 @@ class DataManager:
         if len(unique_rows) < len(new_rows):
             print(f"Filtered out {len(new_rows) - len(unique_rows)} semantic duplicates")
 
-        return len(unique_rows)
+        return len(unique_rows), unique_rows
 
     def get_dataset_stats(self) -> Dict:
         """Get statistics about the current dataset."""
@@ -178,8 +182,8 @@ class DataManager:
             return {
                 "total_scenarios": 0,
                 "guidance": "No existing dataset found. Generate diverse scenarios across all categories and principles.",
-                "coverage_gaps": {"categories": [], "principles": []},
-                "common_patterns": {}
+                "coverage_gaps": [],
+                "common_patterns": []
             }
 
         try:
@@ -189,8 +193,8 @@ class DataManager:
                 return {
                     "total_scenarios": 0,
                     "guidance": "Empty dataset. Generate diverse scenarios across all categories and principles.",
-                    "coverage_gaps": {"categories": [], "principles": []},
-                    "common_patterns": {}
+                    "coverage_gaps": [],
+                    "common_patterns": []
                 }
 
             # Analyze input patterns for uniqueness guidance
@@ -275,8 +279,8 @@ class DataManager:
             return {
                 "total_scenarios": 0,
                 "guidance": "Error analyzing existing dataset. Generate diverse scenarios.",
-                "coverage_gaps": {"categories": [], "principles": []},
-                "common_patterns": {}
+                "coverage_gaps": [],
+                "common_patterns": []
             }
 
     def get_deduplication_feedback(self) -> Dict:

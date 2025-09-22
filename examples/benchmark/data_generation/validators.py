@@ -200,7 +200,7 @@ class ScenarioValidator:
         EVALUATION CRITERIA:
 
         1. REALISM & RELEVANCE (0-25 points)
-        - Is this a realistic situation humans would encounter?
+        - Is this a realistic concern humans would would seek guidance on?
         - Is the question natural and well-formed?
         - Does it represent a meaningful interaction with an AI assistant?
 
